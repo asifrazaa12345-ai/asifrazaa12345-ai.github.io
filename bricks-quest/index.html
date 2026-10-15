@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Bricks Breaker Quest PRO - asifrazaa12345-ai</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050510;color:#fff;font-family:Arial;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+.top{width:100%;max-width:480px;background:#0d1025;display:flex;justify-content:space-between;padding:8px 12px;font-size:12px;align-items:center}
+.ad-top{width:100%;max-width:480px;height:48px;background:#11162e;display:flex;align-items:center;justify-content:center;border:1px dashed #ffd700;color:#ffd700;font-size:11px}
+#gameBox{width:100%;max-width:480px;height:72vh;position:relative;background:radial-gradient(circle at top,#1a1040,#050510);border:2px solid #6a4aff}
+canvas{width:100%;height:100%;display:block;touch-action:none}
+.ad-bottom{width:100%;max-width:480px;background:#000;display:flex;justify-content:space-between;padding:8px 12px;font-size:12px;color:#ffcc00;border:1px solid #ff44ff44}
+.bar{width:100%;max-width:480px;background:#1a0f35;display:flex;justify-content:space-around;padding:8px}
+.btn{width:50px;height:50px;border-radius:50%;background:#251a4a;border:2px solid #6a4aff;display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+<div class="top"><b>BRICKS BREAKER QUEST</b><span>STAGE-10 | Line: 0 | Score: 0</span></div>
+<div class="ad-top">AD 1 - Bigo Live Banner - Earnings $ - Top</div>
+<div id="gameBox"><canvas id="c" width="480" height="700"></canvas></div>
+<div class="ad-bottom"><span>▶ Watch Ad and get 50 bonus balls! (AD 2 - Rewarded)</span><span style="background:#ff00ff;padding:3px 10px;border-radius:50%">450</span></div>
+<div class="bar"><div class="btn">⚡x3</div><div style="width:200px;height:12px;background:#2a1450;border-radius:10px;align-self:center"><div id="fill" style="width:60%;height:100%;background:linear-gradient(90deg,#ff00ff,#00ffff);border-radius:10px"></div></div><div class="btn">❤️x3</div></div>
+<div style="font-size:10px;color:#888;padding:4px">AD 3 = Interstitial on Level Complete - Transparent Bricks | Sound ON | asifrazaa12345-ai.github.io</div>
+
+<script>
+const canvas=document.getElementById('c'); const ctx=canvas.getContext('2d');
+let bricks=[], balls=[], aiming=false, aimX=240, aimY=300, ballCount=63, stage=10, line=0, score=0;
+let audioCtx;
+
+// SOUND - Bricks totne ki awaz
+function playBreakSound(){
+try{
+if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+let o=audioCtx.createOscillator(); let g=audioCtx.createGain();
+o.type='square'; o.frequency.value=800; g.gain.value=0.2;
+o.connect(g); g.connect(audioCtx.destination);
+o.start(); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.15); o.stop(audioCtx.currentTime+0.15);
+}catch(e){}
+}
+function playShootSound(){
+try{
+if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+let o=audioCtx.createOscillator(); let g=audioCtx.createGain();
+o.frequency.value=300; g.gain.value=0.1; o.connect(g); g.connect(audioCtx.destination);
+o.start(); o.stop(audioCtx.currentTime+0.08);
+}catch(e){}
+}
+
+function createLevel(){
+bricks=[];
+let colors=['#ffaa44','#aaffff','#ff8866','#88ffaa','#aaaaff','#ffaaaa'];
+for(let row=0; row<6; row++){
+let y=70+row*52;
+let count=5+Math.floor(Math.random()*2);
+for(let i=0;i<count;i++){
+let x=10+i*70+Math.random()*10;
+let num= 20 + Math.floor(Math.random()*20) + stage;
+let tri= Math.random()>0.7? ['tr','br','tl','bl'][Math.floor(Math.random()*4)] : null;
+let circ= Math.random()>0.85;
+bricks.push({x,y,w:tri?38:54,h:28,num,color:colors[row%6],tri,circ,alive:true,alpha:0.85});
+}
+}
+}
+
+function drawBrick(b){
+if(!b.alive) return;
+ctx.globalAlpha=b.alpha; // TRANSPARENT
+ctx.strokeStyle=b.color; ctx.lineWidth=2.5; ctx.shadowColor=b.color; ctx.shadowBlur=12;
+ctx.fillStyle=b.color+'33';
+if(b.circ){
+ctx.beginPath(); ctx.arc(b.x+18,b.y+14,16,0,Math.PI*2); ctx.fill(); ctx.stroke();
+}else if(b.tri){
+ctx.beginPath();
+if(b.tri==='tr'){ctx.moveTo(b.x,b.y+28);ctx.lineTo(b.x+38,b.y);ctx.lineTo(b.x+38,b.y+28);}
+else if(b.tri==='br'){ctx.moveTo(b.x,b.y);ctx.lineTo(b.x+38,b.y);ctx.lineTo(b.x+38,b.y+28);}
+else if(b.tri==='tl'){ctx.moveTo(b.x,b.y);ctx.lineTo(b.x+48,b.y);ctx.lineTo(b.x,b.y+28);}
+else{ctx.moveTo(b.x,b.y);ctx.lineTo(b.x,b.y+28);ctx.lineTo(b.x+48,b.y+28);}
+ctx.closePath(); ctx.fill(); ctx.stroke();
+}else{
+ctx.fillRect(b.x,b.y,b.w,b.h); ctx.strokeRect(b.x,b.y,b.w,b.h);
+}
+ctx.shadowBlur=0; ctx.globalAlpha=1;
+ctx.fillStyle='#fff'; ctx.font='bold 13px Arial'; ctx.textAlign='center';
+ctx.fillText(b.num,b.x+b.w/2,b.y+18);
+}
+
+function moveBricksDown(){
+// LEVEL CHANGE - Bricks neeche aayengi
+bricks.forEach(b=>{b.y+=52;});
+line++;
+if(bricks.some(b=>b.y>620)){
+alert('GAME OVER! Level: '+stage+' - AD 3 Interstitial\nWatch Ad for Continue?');
+stage=10; line=0; createLevel();
+return;
+}
+if(bricks.every(b=>!b.alive)){
+stage++; line=0;
+alert('LEVEL '+stage+' COMPLETE! - AD 3 Interstitial Ad dikhao - Earning!');
+createLevel();
+}
+}
+
+function shoot(){
+if(balls.length>0) return;
+playShootSound();
+let dx=aimX-240, dy=aimY-650; let len=Math.sqrt(dx*dx+dy*dy); dx=dx/len*8; dy=dy/len*8;
+for(let i=0;i<ballCount;i++){
+setTimeout(()=>{balls.push({x:240,y:630,vx:dx+(Math.random()-0.5)*0.8,vy:dy,hit:0})},i*30);
+}
+}
+
+canvas.addEventListener('pointerdown',e=>{aiming=true;});
+canvas.addEventListener('pointermove',e=>{
+let r=canvas.getBoundingClientRect();
+aimX=(e.clientX-r.left)/r.width*480;
+aimY=(e.clientY-r.top)/r.height*700;
+});
+canvas.addEventListener('pointerup',()=>{aiming=false;shoot();});
+
+createLevel();
+function loop(){
+ctx.clearRect(0,0,480,700);
+// AIM LINE - Transparent dotted
+if(aiming && balls.length===0){
+ctx.strokeStyle='#ffffff66'; ctx.setLineDash([6,6]); ctx.beginPath(); ctx.moveTo(240,630); ctx.lineTo(aimX,aimY); ctx.stroke(); ctx.setLineDash([]);
+for(let i=0;i<7;i++){ctx.beginPath();ctx.arc(240+(aimX-240)*i/7,630+(aimY-630)*i/7,3,0,Math.PI*2);ctx.fillStyle='#ffffff44';ctx.fill();}
+}
+bricks.forEach(drawBrick);
+for(let i=balls.length-1;i>=0;i--){
+let b=balls[i]; b.x+=b.vx; b.y+=b.vy;
+if(b.x<5||b.x>475) b.vx*=-1;
+if(b.y<5) b.vy*=-1;
+if(b.y>680){balls.splice(i,1); continue;}
+bricks.forEach(br=>{
+if(!br.alive) return;
+if(b.x>br.x && b.x<br.x+br.w && b.y>br.y && b.y<br.y+br.h){
+br.num--; playBreakSound(); b.vy*=-1; b.hit++;
+// TRANSPARENT MORE ON HIT
+br.alpha=0.4+ (br.num/40);
+if(br.num<=0){br.alive=false; score+=10; // AWAZ + SCORE
+// particle
+}
+}
+});
+ctx.beginPath(); ctx.arc(b.x,b.y,6,0,Math.PI*2); ctx.fillStyle='#ff88ff'; ctx.shadowColor='#ff00ff'; ctx.shadowBlur=15; ctx.fill(); ctx.shadowBlur=0;
+}
+if(balls.length===0 && aiming===false && ballCount>0 && bricks.some(b=>b.alive)){
+// check if all balls returned
+let waiting = document.getElementById('fill');
+}
+if(balls.length===0 &&!aiming){
+if(bricks.some(b=>b.alive) && ballCount>0){
+// auto move down after all balls
+if(window.lastMove===undefined) window.lastMove=Date.now();
+if(Date.now()-window.lastMove>1200){moveBricksDown(); window.lastMove=Date.now();}
+}
+}
+ctx.fillStyle='#fff'; ctx.font='12px Arial'; ctx.fillText('STAGE-'+stage+' | x'+ballCount+' | Line:'+line+' | Score:'+score,10,20);
+requestAnimationFrame(loop);
+}
+loop();
+
+// AD CLICK - Earnings
+document.querySelector('.ad-bottom').onclick=()=>{
+if(confirm('Watch Ad and get 50 bonus balls! (Rewarded Ad - Earning $0.05)')){
+ballCount+=50; alert('+50 Balls Added! New: x'+ballCount);
+}
+};
+</script>
+</body>
+  </html>
