@@ -3,33 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Bricks Breaker Quest - FIXED V2</title>
+<title>BRICKS BREAKER QUEST - FINAL V3</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0e1a">
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;touch-action:none;}
-  body{background:#0a0a1a;color:white;font-family:Arial;overflow:hidden;display:flex;flex-direction:column;height:100vh;}
-  .top-bar{display:flex;justify-content:space-between;padding:8px 10px;background:#111;border-bottom:2px solid #ffaa00;font-size:12px;font-weight:bold;}
-  .ad-banner{background:#1a1a00;text-align:center;padding:6px;border:1px solid #ffaa00;color:#ffaa00;font-size:12px;cursor:pointer;}
-  #gameContainer{flex:1;position:relative;background:radial-gradient(circle at center, #1a1a3a 0%, #0a0a1a 100%);overflow:hidden;}
-  #gameCanvas{width:100%;height:100%;display:block;}
-  .bottom-bar{background:#111;display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-top:1px solid #333;font-size:11px;}
-  .ad-modal{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:none;flex-direction:column;justify-content:center;align-items:center;z-index:100;}
-  .ad-box{background:white;color:black;width:85%;max-width:320px;padding:20px;text-align:center;border-radius:10px;}
-  .close-ad{background:#6c5ce7;color:white;border:none;padding:10px 20px;border-radius:20px;margin-top:15px;font-weight:bold;cursor:pointer;width:100%;}
+*{margin:0;padding:0;box-sizing:border-box;touch-action:none}
+body{background:#0a0e1a;color:#fff;font-family:Arial,sans-serif;overflow:hidden}
+#topbar{display:flex;justify-content:space-between;padding:6px 10px;background:#111a2e;font-size:12px;border-bottom:2px solid #1e3a5f}
+#adBanner{background:linear-gradient(90deg,#ff6a00,#ee0979);text-align:center;padding:8px;font-weight:bold;cursor:pointer;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.7}}
+canvas{display:block;margin:0 auto;background:radial-gradient(#141e35,#0a0e1a)}
+#controls{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;padding:6px;background:#111a2e}
+.btn{padding:8px 16px;border:none;border-radius:20px;font-weight:bold;cursor:pointer}
+#speedBtn{background:#00d2ff;color:#000}
+#recallBtn{background:#fff;color:#000;border:2px solid #00ff88}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:100}
+.modal.active{display:flex}
+.box{background:#1a2540;padding:20px;border-radius:15px;text-align:center;min-width:280px;border:2px solid #00d2ff}
+.box button{margin-top:12px;padding:10px 20px;border:none;border-radius:25px;font-weight:bold;cursor:pointer;width:100%}
+.primary{background:linear-gradient(90deg,#00d2ff,#3a7bd5);color:#fff}
+.reward{background:linear-gradient(90deg,#ff6a00,#ee0979);color:#fff}
+#toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#00ff88;color:#000;padding:12px 20px;border-radius:25px;font-weight:bold;display:none;z-index:200}
 </style>
 </head>
 <body>
-<div class="top-bar"><div>BRICKS BREAKER QUEST</div><div id="stats">STAGE-10 | Score:0 | Line:1</div></div>
-<div class="ad-banner" onclick="triggerAd(1)">🔥 AD 1 - Click Here - Earning Banner Ad 🔥</div>
-<div id="gameContainer">
-  <canvas id="gameCanvas"></canvas>
-  <div id="adModal" class="ad-modal">
-    <h2 style="color:#ffdd00;margin-bottom:15px;">📢 Advertisement Playing...</h2>
-    <div class="ad-box"><p style="font-size:16px;font-weight:bold;">Your Ad Here<br>Earning $0.05 per view</p><p id="adTimer" style="margin-top:15px;font-size:13px;color:#555;">Ad ends in 5s...</p><button class="close-ad" onclick="closeAd()">Close Ad & Get Reward</button></div>
-  </div>
-</div>
-<div class="bottom-bar"><div onclick="triggerAd(2)" style="color:#ffaa00;cursor:pointer;">▶ Watch Ad +15 balls! (AD 2)</div><div id="ballCount" style="background:#ff00ff;padding:4px 10px;border-radius:12px;">x50</div></div>
+<div id="topbar"><span>BRICKS BREAKER QUEST</span><span id="stats">STAGE:10 | Score:0 | Line:1 | Balls:x20</span></div>
+<div id="adBanner" onclick="showAd()">🎁 CLAIM BONUS +15 Balls - Tap Here! 🎁</div>
+<canvas id="game"></canvas>
+<div id="controls"><button class="btn" id="speedBtn" onclick="toggleSpeed()">⚡ SPEED x1</button><button class="btn" id="recallBtn" onclick="recallBalls()">👇 TAP TO RECALL</button></div>
+<div id="adModal" class="modal"><div class="box"><h2>📢 Advertisement Playing...</h2><p id="adText">Your Ad Here<br>Earning $0.05 per view</p><p id="adTimer">Ad ends in 5s...</p><button class="reward" onclick="closeAd()">Close Ad & Get Reward</button></div></div>
+<div id="gameOverModal" class="modal"><div class="box"><h2>💀 GAME OVER</h2><p>Bricks reached bottom!</p><p id="finalScore"></p><button class="reward" onclick="watchAdToContinue()">📺 Watch Ad to Continue (+15 Balls)</button><button class="primary" onclick="restartGame()" style="margin-top:8px;background:#555">🔄 Restart</button></div></div>
+<div id="toast"></div>
 <script>
-const canvas=document.getElementById('gameCanvas');const ctx=canvas.getContext('2d');let W,H,dpr;function resize(){dpr=window.devicePixelRatio||1;W=canvas.clientWidth=canvas.parentElement.clientWidth;H=canvas.clientHeight=canvas.parentElement.clientHeight;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);BRICK_W=(W-50)/6;BRICK_H=38;}window.addEventListener('resize',resize);let bricks=[],balls=[],particles=[],score=0,line=1,ballCount=50,isAiming=true,isShooting=false,aimAngle=-Math.PI/2,shootX=0,shootY=0,ballsReturned=0,lastAdTime=0;const COLS=6;let BRICK_W=50,BRICK_H=38;const GAP=6,BOTTOM_LINE=0.88;function initBricks(){bricks=[];for(let r=0;r<4;r++)addNewRow(r);shootX=W/2;shootY=H*0.92;}function addNewRow(rowIndex=0){let y=60+rowIndex*(BRICK_H+GAP);for(let c=0;c<COLS;c++){if(Math.random()>0.35){let type=['rect','tri','circle'][Math.floor(Math.random()*3)];let val=Math.floor(Math.random()*20)+5+line;bricks.push({x:10+c*(BRICK_W+GAP),y:y,w:BRICK_W,h:BRICK_H,val:val,maxVal:val,type:type,color:type==='rect'?'#ff8c42':type==='tri'?'#ffd93d':'#00e5ff'});}}}function moveBricksDown(){for(let b of bricks)b.y+=(BRICK_H+GAP);line++;addNewRow(0);updateStats();}function updateStats(){document.getElementById('stats').innerText=`STAGE-10 | Score:${score} | Line:${line}`;document.getElementById('ballCount').innerText='x'+ballCount;}function getAngle(mx,my){let dx=mx-shootX,dy=my-shootY,ang=Math.atan2(dy,dx);if(ang>-0.15)ang=-0.15;if(ang<-Math.PI+0.15)ang=-Math.PI+0.15;return ang;}canvas.addEventListener('pointerdown',e=>{if(isShooting)return;const rect=canvas.getBoundingClientRect();aimAngle=getAngle(e.clientX-rect.left,e.clientY-rect.top);});canvas.addEventListener('pointermove',e=>{if(isShooting)return;const rect=canvas.getBoundingClientRect();aimAngle=getAngle(e.clientX-rect.left,e.clientY-rect.top);});canvas.addEventListener('pointerup',e=>{if(isShooting)return;shoot();});function shoot(){if(isShooting)return;isShooting=true;isAiming=false;balls=[];ballsReturned=0;let angle=aimAngle;for(let i=0;i<ballCount;i++){setTimeout(()=>{balls.push({x:shootX,y:shootY,vx:Math.cos(angle)*8,vy:Math.sin(angle)*8,active:true});},i*70);}setTimeout(checkAllReturned,3000);}function checkAllReturned(){let check=setInterval(()=>{if(balls.length===0||(ballsReturned>=ballCount&&balls.every(b=>!b.active))){clearInterval(check);isShooting=false;isAiming=true;balls=[];moveBricksDown();}},300);}function updateBalls(){for(let b of balls){if(!b.active)continue;b.x+=b.vx;b.y+=b.vy;if(b.x<5){b.x=5;b.vx*=-1;}if(b.x>W-5){b.x=W-5;b.vx*=-1;}if(b.y<50){b.y=50;b.vy*=-1;}if(b.y>H*0.92){b.active=false;ballsReturned++;if(ballsReturned===1)shootX=b.x;continue;}for(let br of bricks){if(br.val<=0)continue;if(b.x>br.x&&b.x<br.x+br.w&&b.y>br.y&&b.y<br.y+br.h){br.val--;score+=10;b.vy*=-1;b.vx+=(Math.random()-0.5)*1;if(br.val<=0)particles.push({x:br.x+br.w/2,y:br.y+br.h/2,life:15});break;}}}bricks=bricks.filter(br=>br.val>0);balls=balls.filter(b=>b.active||ballsReturned<ballCount);}function draw(){ctx.clearRect(0,0,W,H);if(isAiming&&!isShooting){ctx.save();ctx.setLineDash([6,6]);ctx.strokeStyle='rgba(255,255,255,0.7)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(shootX,shootY);let len=400,ex=shootX+Math.cos(aimAngle)*len,ey=shootY+Math.sin(aimAngle)*len;ctx.lineTo(ex,ey);ctx.stroke();ctx.setLineDash([]);for(let i=0;i<10;i++){let t=i/10,x=shootX+Math.cos(aimAngle)*len*t,y=shootY+Math.sin(aimAngle)*len*t;ctx.fillStyle='white';ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill();}ctx.restore();ctx.fillStyle='white';ctx.shadowColor='white';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(shootX,shootY,9,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}for(let br of bricks){let pct=br.val/br.maxVal;ctx.globalAlpha=0.3+pct*0.7;ctx.fillStyle=br.color;ctx.shadowColor=br.color;ctx.shadowBlur=12;if(br.type==='rect'){ctx.fillRect(br.x,br.y,br.w,br.h);}else if(br.type==='circle'){let cx=br.x+br.w/2,cy=br.y+br.h/2,r=Math.min(br.w,br.h)/2;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();}else{ctx.beginPath();ctx.moveTo(br.x,br.y+br.h);ctx.lineTo(br.x+br.w/2,br.y);ctx.lineTo(br.x+br.w,br.y+br.h);ctx.closePath();ctx.fill();}ctx.shadowBlur=0;ctx.globalAlpha=1;ctx.fillStyle='white';ctx.font='bold 12px Arial';ctx.textAlign='center';ctx.fillText(br.val,br.x+br.w/2,br.y+br.h/2+4);}for(let b of balls){ctx.fillStyle='#FFFFFF';ctx.shadowColor='#FFFFFF';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(b.x,b.y,6,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}for(let p of particles){p.life--;ctx.globalAlpha=p.life/15;ctx.fillStyle='yellow';ctx.beginPath();ctx.arc(p.x,p.y,10,0,Math.PI*2);ctx.fill();}particles=particles.filter(p=>p.life>0);ctx.globalAlpha=1;ctx.strokeStyle='rgba(255,0,100,0.3)';ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(0,H*BOTTOM_LINE);ctx.lineTo(W,H*BOTTOM_LINE);ctx.stroke();ctx.setLineDash([]);}function loop(){updateBalls();draw();requestAnimationFrame(loop);}resize();initBricks();updateStats();loop();let adTimerInt;function triggerAd(type){let now=Date.now();if(now-lastAdTime<30000&&type===2){alert('Wait 30 sec for next ad!');return;}document.getElementById('adModal').style.display='flex';let t=5;document.getElementById('adTimer').innerText=`Ad ends in ${t}s... Earning $0.04`;adTimerInt=setInterval(()=>{t--;if(t>0)document.getElementById('adTimer').innerText=`Ad ends in ${t}s... Earning $0.04`;else{document.getElementById('adTimer').innerText='Reward Ready! Click Close';clearInterval(adTimerInt);}},1000);}function closeAd(){clearInterval(adTimerInt);document.getElementById('adModal').style.display='none';ballCount+=15;updateStats();lastAdTime=Date.now();let div=document.createElement('div');div.style.position='absolute';div.style.top='50%';div.style.left='50%';div.style.transform='translate(-50%,-50%)';div.style.background='#00ff88';div.style.color='black';div.style.padding='12px 20px';div.style.borderRadius='20px';div.style.fontWeight='bold';div.style.zIndex='200';div.innerText='✅ +15 Balls! Earning $0.05';document.getElementById('gameContainer').appendChild(div);setTimeout(()=>div.remove(),1500);}
+const canvas=document.getElementById('game');const ctx=canvas.getContext('2d');
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight-90;}resize();window.addEventListener('resize',resize);
+let audioCtx;function initAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();}
+function playSound(f,t,d,v=0.3){try{initAudio();const o=audioCtx.createOscillator();const g=audioCtx.createGain();o.type=t;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(audioCtx.destination);o.start();g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+d);o.stop(audioCtx.currentTime+d);}catch(e){}}
+const SFX={shoot:()=>playSound(800,'square',0.12,0.25),hit:()=>playSound(400,'sine',0.08,0.2),brk:()=>playSound(1200,'triangle',0.2,0.3),recall:()=>playSound(300,'sawtooth',0.3,0.25),ad:()=>playSound(600,'sine',0.5,0.3)};
+let bricks=[],balls=[];let shooter={x:0,y:0};let ballCount=20,score=0,line=1,stage=10;let isAiming=false,isShooting=false,aimStart=null,aimEnd=null,gameSpeed=1;
+function resetShooter(){shooter.x=canvas.width/2;shooter.y=canvas.height-18;}resetShooter();
+function createBricks(){bricks=[];const rows=2+Math.floor(line/3);for(let r=0;r<rows;r++){for(let c=0;c<6;c++){if(Math.random()<0.65){bricks.push({x:c*(canvas.width/6)+8,y:r*55+80,w:46,h:46,hp:Math.floor(10+line*1.5+Math.random()*10),type:'circle'});}}}}createBricks();
+function drawBricks(){bricks.forEach(b=>{if(b.hp<=0)return;const cx=b.x+b.w/2,cy=b.y+b.h/2;ctx.beginPath();ctx.arc(cx,cy,b.w/2,0,Math.PI*2);ctx.fillStyle=b.hp>15?'#00aaff':'#00d2ff';ctx.fill();ctx.fillStyle='#fff';ctx.font='bold 14px Arial';ctx.textAlign='center';ctx.fillText(b.hp,b.x+b.w/2,b.y+b.h/2+5);});}
+function drawShooter(){ctx.beginPath();ctx.arc(shooter.x,shooter.y,12,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.fillStyle='#00ff88';ctx.beginPath();ctx.arc(shooter.x,shooter.y,5,0,Math.PI*2);ctx.fill();}
+function drawAim(){if(!isAiming||!aimStart||!aimEnd)return;let dx=aimEnd.x-aimStart.x,dy=aimEnd.y-aimStart.y;let angle=Math.atan2(dy,dx);let deg=angle*180/Math.PI;if(deg>-15&&deg<15)deg=15;if(deg>165||deg<-165)deg=165;angle=deg*Math.PI/180;const len=Math.min(Math.hypot(dx,dy),220);const ex=shooter.x+Math.cos(angle)*len,ey=shooter.y+Math.sin(angle)*len;ctx.setLineDash([8,8]);ctx.strokeStyle='rgba(255,255,255,0.9)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(shooter.x,shooter.y);ctx.lineTo(ex,ey);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(ex,ey,4,0,Math.PI*2);ctx.fill();}
+function shoot(angle){if(isShooting)return;isShooting=true;SFX.shoot();balls=[];for(let i=0;i<ballCount;i++){setTimeout(()=>{balls.push({x:shooter.x,y:shooter.y,vx:Math.cos(angle)*13,vy:Math.sin(angle)*13,active:true});},i*35);}}
+function recallBalls(){if(!isShooting)return;SFX.recall();balls.forEach(b=>{b.vx=(shooter.x-b.x)*0.22;b.vy=(shooter.y-b.y)*0.22;b.recalling=true;});showToast("⚡ Balls Recalled!");setTimeout(()=>{finishTurn();},300);}
+function finishTurn(){isShooting=false;balls=[];line++;score+=ballCount;if(bricks.length<8)createBricks();else{bricks.forEach(b=>b.y+=55);if(bricks.some(b=>b.y+b.h>=shooter.y-10)){showGameOver();return;}for(let c=0;c<6;c++)if(Math.random()<0.5)bricks.push({x:c*(canvas.width/6)+8,y:80,w:46,h:46,hp:Math.floor(10+line*1.8),type:'circle'});}updateStats();resetShooter();}
+function updateStats(){document.getElementById('stats').innerText=`STAGE:${stage} | Score:${score} | Line:${line} | Balls:x${ballCount}`;}
+function showToast(m){const t=document.getElementById('toast');t.innerText=m;t.style.display='block';setTimeout(()=>t.style.display='none',1500);}
+let adTimerInt;function showAd(){if(!navigator.onLine){showToast("📴 Offline - Ad will show when online");return;}SFX.ad();document.getElementById('adModal').classList.add('active');let sec=5;let earn=0;document.getElementById('adTimer').innerText=`Ad ends in ${sec}s... Earning $${earn.toFixed(2)}`;adTimerInt=setInterval(()=>{sec--;earn+=0.01;document.getElementById('adTimer').innerText=sec>0?`Ad ends in ${sec}s... Earning $${earn.toFixed(2)}`:`Reward Ready!`;if(sec<=0)clearInterval(adTimerInt);},1000);}
+function closeAd(){clearInterval(adTimerInt);document.getElementById('adModal').classList.remove('active');ballCount+=15;updateStats();showToast("✅ +15 Balls! Earning $0.05");SFX.brk();}
+function showGameOver(){document.getElementById('finalScore').innerText=`Score: ${score} | Line: ${line}`;document.getElementById('gameOverModal').classList.add('active');}
+function watchAdToContinue(){document.getElementById('gameOverModal').classList.remove('active');showAd();setTimeout(()=>{bricks=bricks.filter(b=>b.y<shooter.y-60);},500);}
+function restartGame(){document.getElementById('gameOverModal').classList.remove('active');score=0;line=1;ballCount=20;bricks=[];createBricks();resetShooter();isShooting=false;balls=[];updateStats();}
+function toggleSpeed(){gameSpeed=gameSpeed===1?2:1;document.getElementById('speedBtn').innerText=gameSpeed===1?"⚡ SPEED x1":"⚡ SPEED x2";showToast(gameSpeed===2?"Speed x2!":"Speed x1");}
+function loop(){ctx.clearRect(0,0,canvas.width,canvas.height);ctx.strokeStyle='rgba(255,0,80,0.6)';ctx.setLineDash([6,6]);ctx.beginPath();ctx.moveTo(0,shooter.y+18);ctx.lineTo(canvas.width,shooter.y+18);ctx.stroke();ctx.setLineDash([]);drawBricks();drawShooter();drawAim();for(let s=0;s<gameSpeed;s++){for(let i=balls.length-1;i>=0;i--){let b=balls[i];if(!b.active)continue;b.x+=b.vx;b.y+=b.vy;if(b.x<8||b.x>canvas.width-8){b.vx*=-1;b.x=Math.max(8,Math.min(canvas.width-8,b.x));SFX.hit();}if(b.y<70){b.vy*=-1;b.y=70;SFX.hit();}for(let br of bricks){if(br.hp<=0)continue;let cx=br.x+br.w/2,cy=br.y+br.h/2;if(Math.hypot(b.x-cx,b.y-cy)<br.w/2+8){br.hp--;if(br.hp<=0){SFX.brk();score+=10;}else SFX.hit();b.vy*=-1;break;}}if(b.y>shooter.y-5&&!b.recalling){if(Math.abs(b.x-shooter.x)<40){b.active=false;balls.splice(i,1);if(balls.length===0)finishTurn();}else b.vy*=-1;}if(b.recalling&&Math.hypot(b.x-shooter.x,b.y-shooter.y)<15){b.active=false;balls.splice(i,1);if(balls.length===0)finishTurn();}}}balls.forEach(b=>{ctx.beginPath();ctx.arc(b.x,b.y,6,0,Math.PI*2);ctx.fillStyle='#fff';ctx.shadowBlur=8;ctx.shadowColor='#fff';ctx.fill();ctx.shadowBlur=0;});requestAnimationFrame(loop);}
+canvas.addEventListener('pointerdown',e=>{if(isShooting){recallBalls();return;}initAudio();const r=canvas.getBoundingClientRect();aimStart={x:e.clientX-r.left,y:e.clientY-r.top};isAiming=true;});
+canvas.addEventListener('pointermove',e=>{if(!isAiming)return;const r=canvas.getBoundingClientRect();aimEnd={x:e.clientX-r.left,y:e.clientY-r.top};});
+canvas.addEventListener('pointerup',e=>{if(!isAiming)return;isAiming=false;const r=canvas.getBoundingClientRect();aimEnd={x:e.clientX-r.left,y:e.clientY-r.top};let dx=aimEnd.x-shooter.x,dy=aimEnd.y-shooter.y;let angle=Math.atan2(dy,dx);if(dy>-10)return;let deg=angle*180/Math.PI;if(deg>-15&&deg<0)deg=-15;if(deg>0&&deg<15)deg=-15;if(deg<-165)deg=-165;if(deg>165)deg=165;if(deg>0)deg=-165+(180-deg);angle=deg*Math.PI/180;shoot(angle);});
+updateStats();loop();
+</script>
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').then(()=>console.log("Offline Ready!"));
+}
 </script>
 </body>
 </html>
