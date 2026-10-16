@@ -1,18 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-<title>V108 SUPER SMALL 22PX - NO SPACE SOUND</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>V110 20PX SMALL</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
-body{background:#020512;color:#fff;font-family:Arial, Helvetica, sans-serif;overflow:hidden;width:100vw;height:100vh}
-#top{height:42px;background:#0a1630;display:flex;justify-content:space-between;align-items:center;padding:0 12px;font-size:11px;font-weight:bold;border-bottom:1px solid #1e293b}
-#fb{height:48px;background:#ffffff;color:#000;display:flex;justify-content:space-between;align-items:center;padding:0 12px}
-#fb b{background:#1877f2;color:#fff;padding:6px 14px;border-radius:6px;font-size:12px}
-#earn{background:linear-gradient(90deg,#ff8c00,#ff2d2d);text-align:center;padding:6px;font-size:11px;font-weight:bold;letter-spacing:0.5px}
-#box{margin:0;border-left:3px solid #a855f7;border-right:3px solid #a855f7;background:#050a20;overflow:hidden}
+*{margin:0;padding:0;box-sizing:border-box;touch-action:none}
+body{background:#020512;color:#fff;font-family:Arial;overflow:hidden}
+#top{height:42px;background:#0a1630;display:flex;justify-content:space-between;align-items:center;padding:0 10px;font-size:11px;font-weight:bold}
+#fb{height:48px;background:#fff;color:#000;display:flex;justify-content:space-between;align-items:center;padding:0 10px}
+#fb b{background:#1877f2;color:#fff;padding:5px 12px;border-radius:6px}
+#earn{background:linear-gradient(90deg,#ff8c00,#ff2d2d);text-align:center;padding:5px;font-size:11px;font-weight:bold}
+#box{margin:0;border:3px solid #a855f7;background:#050a20}
 canvas{display:block;width:100%;background:#040712}
-#bot{position:fixed;bottom:0;left:0;right:0;height:76px;background:linear-gradient(180deg,#122050,#080e28);display:flex;justify-content:space-between;align-items:center;padding:0 14px;border-top:2px solid #a855f7}
-.cBtn{width:52px;height:52px;border-radius:50%;border:2px solid #a855f7;background:radial-gradient(circle,#1e1030,#0a0a1a);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 14px #a855f7;cursor:pointer}
-#sl{flex:1;margin:
+#bot{position:fixed;bottom:0;left:0;right:0;height:76px;background:#122050;display:flex;justify-content:space-between;align-items:center;padding:0 12px;border-top:2px solid #a855f7}
+.cBtn{width:50px;height:50px;border-radius:50%;border:2px solid #a855f7;background:radial-gradient(circle,#1e1030,#0a0a1a);display:flex;align-items:center;justify-content:center;font-size:20px}
+#sl{flex:1;margin:0 12px;height:14px;background:#1e293b;border-radius:20px;border:1px solid #a855f7;position:relative}
+#dot{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:20px;height:20px;background:#fff;border-radius:50%;box-shadow:0 0 12px #fff}
+#rec{width:86px;height:58px;border-radius:14px;border:2px solid #ff3366;background:radial-gradient(circle,#2a1020,#1a0a1a);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="top"><div>STAGE-<span id="st">10</span> L<span id="lv">1</span>/5 V110 20PX</div><div>Line <span id="ln">0</span> | <span id="sc">0</span> | $ <span id="earnT">0.00</span></div></div>
+<div id="fb"><div style="display:flex;align-items:center;gap:8px"><div style="width:26px;height:26px;background:#1877f2;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold">f</div><div><div style="font-size:12px;font-weight:bold">Facebook</div><div style="font-size:10px;color:#666">V110 20PX SMALL</div></div></div><b>Use app</b></div>
+<div id="earn">V110 - 20PX SMALL - NO SPACE - SOUND 🔊 - TOUCH RECALL</div>
+<div id="box"><canvas id="game"></canvas></div>
+<div id="bot"><div class="cBtn">⚡</div><div id="sl"><div id="dot"></div></div><div id="rec" onclick="instantRecall()"><span style="font-size:22px">↓</span><span style="font-size:10px">RECALL</span></div><div class="cBtn" onclick="showAd()">↩</div></div>
+<script>
+let AC;
+function initAudio(){if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();}
+function play(s,f,d,v=0.25){initAudio();let o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;o.type=s;g.gain.value=v;g.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d);}
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+let W,H;
+function rs(){W=canvas.width=innerWidth;H=canvas.height=innerHeight-188;}
+rs();
+let balls=[],bricks=[];
+let ballCount=77,score=0,stage=10,levelInStage=1,line=0,earn=0;
+let shootX=W/2,shootY=H-16,nextX=null,aim=false,ang=-Math.PI/2;
+let shooting=false,toShoot=0,shot=0,tmr=0;
+class Brick{
+constructor(x,y,hp,sh,co){
+this.x=x;this.y=y;this.w=20;this.h=20;this.hp=hp;this.sh=sh;this.co=co;this.dead=false;
+}
+draw(){
+if(this.dead)return;
+ctx.save();
+ctx.shadowColor=this.co;ctx.shadowBlur=5;
+ctx.strokeStyle=this.co;ctx.lineWidth=0.7;
+let a='77';
+if(this.sh=='sq'){ctx.fillStyle=this.co+a;ctx.fillRect(this.x,this.y,this.w,this.h);ctx.strokeRect(this.x,this.y,this.w,this.h);}
+if(this.sh=='triR'){ctx.fillStyle=this.co+a;ctx.beginPath();ctx.moveTo(this.x,this.y);ctx.lineTo(this.x+this.w,this.y+this.h/2);ctx.lineTo(this.x,this.y+this.h);ctx.closePath();ctx.fill();ctx.stroke();}
+if(this.sh=='triL'){ctx.fillStyle=this.co+a;ctx.beginPath();ctx.moveTo(this.x+this.w,this.y);ctx.lineTo(this.x+this.w,this.y+this.h);ctx.lineTo(this.x,this.y+this.h/2);ctx.closePath();ctx.fill();ctx.stroke();}
+if(this.sh=='cir'){ctx.beginPath();ctx.arc(this.x+10,this.y+10,4,0,Math.PI*2);ctx.fillStyle=this.co;ctx.fill();ctx.restore();return;}
+ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.font='bold 6px Arial';ctx.textAlign='center';ctx.fillText(this.hp,this.x+10,this.y+14);ctx.restore();
+}
+}
+class Ball{
+constructor(x,y,a){
+this.x=x;this.y=y;this.vx=Math.cos(a)*8;this.vy=Math.sin(a)*8;this.r=3.8;this.ac=true;
+}
+update(){
+if(!this.ac)return;
+this.x+=this.vx;this.y+=this.vy;
+if(this.x<this.r||this.x>W-this.r){this.vx*=-1;play('square',600,0.08,0.12);this.x=Math.max(this.r,Math.min(W-this.r,this.x));}
+if(this.y<this.r){this.vy*=-1;play('square',600,0.08,0.12);this.y=this.r;}
+if(this.y>H-4){this.ac=false;if(next
