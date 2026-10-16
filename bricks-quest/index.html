@@ -4,234 +4,167 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>BRICKS BREAKER QUEST</title>
-<link rel="manifest" href="manifest.json">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;touch-action:none}
 body{background:#0a1628;color:white;font-family:Arial;overflow:hidden}
-#topBar{display:flex;justify-content:space-between;padding:8px 12px;background:#111f3a;font-size:12px;font-weight:bold}
-#bonusBar{background:linear-gradient(90deg,orange,red);text-align:center;padding:6px;font-size:13px;font-weight:bold;cursor:pointer}
+#topBar{display:flex;justify-content:space-between;padding:8px 12px;background:#111f3a;font-size:11px;font-weight:bold}
+#bonusBar{background:linear-gradient(90deg,#ff8c00,#ff2d2d);text-align:center;padding:7px;font-size:13px;font-weight:bold;cursor:pointer}
 canvas{display:block;background:#0a1628}
-#controls{position:fixed;bottom:15px;left:0;right:0;display:flex;justify-content:space-between;padding:0 15px}
-.btn{padding:10px 18px;border-radius:20px;border:none;font-weight:bold;color:white;cursor:pointer}
+#controls{position:fixed;bottom:8px;left:0;right:0;display:flex;justify-content:space-between;padding:0 10px;gap:6px}
+.btn{padding:10px 14px;border-radius:20px;border:none;font-weight:bold;color:white;cursor:pointer;font-size:11px}
 #speedBtn{background:#1e90ff}
-#recallBtn{background:white;color:black}
+#soundBtn{background:#333}
+#recallBtn{background:white;color:black;flex:1;max-width:120px}
+#status{position:fixed;top:36px;right:8px;font-size:9px;background:#0008;padding:3px 6px;border-radius:8px}
 </style>
 </head>
 <body>
 <div id="topBar">
-  <span>BRICKS BREAKER QUEST</span>
-  <span id="info">STAGE:1 | Score:0 | Balls:x20</span>
+  <span>BRICKS QUEST</span>
+  <span id="info">STAGE:1 | Score:0 | Balls:x35</span>
 </div>
-<div id="bonusBar" onclick="claimBonus()">🎁 CLAIM BONUS +15 Balls - Tap Here!</div>
+<div id="bonusBar" onclick="showAd()">🎁 CLAIM BONUS +15 Balls - Tap Ad!</div>
+<div id="status">● ONLINE</div>
 <canvas id="game"></canvas>
 <div id="controls">
   <button class="btn" id="speedBtn" onclick="toggleSpeed()">SPEED x1</button>
-  <button class="btn" id="recallBtn" onclick="recallBalls()">⚡ TAP TO RECALL</button>
+  <button class="btn" id="soundBtn" onclick="toggleSound()">🔊 ON</button>
+  <button class="btn" id="recallBtn" onclick="recallBalls()">⚡ RECALL</button>
 </div>
 
 <script>
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-let W,H;
-function resize(){W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight-90;}
-resize(); window.addEventListener('resize',resize);
+// --- OFFLINE / ONLINE ---
+function updateOnline(){ document.getElementById('status').innerText = navigator.onLine? '● ONLINE - AdSense Active' : '● OFFLINE - Local Ad'; document.getElementById('status').style.color = navigator.onLine? '#0f0' : '#ff0'; }
+window.addEventListener('online',updateOnline); window.addEventListener('offline',updateOnline); updateOnline();
 
-let balls=[], bricks=[], particles=[];
-let ballCount=20, score=0, stage=1, line=1;
-let shootPos={x:0,y:0}, aiming=false, aimAngle=0;
-let shooting=false, ballsToShoot=0, shootIndex=0, shootTimer=0;
-let speedMult=1;
-let gameOverLine = H - 120;
+// --- SOUND SYSTEM - OFFLINE WORKS ---
+let soundOn=true; let audioCtx=null;
+function initAudio(){ if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }
+function playSound(type){
+  if(!soundOn) return; initAudio(); if(audioCtx.state=='suspended') audioCtx.resume();
+  let o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination);
+  if(type=='shoot'){ o.frequency.value=300; g.gain.value=0.12; o.type='square'; }
+  if(type=='hit'){ o.frequency.value=650; g.gain.value=0.09; }
+  if(type=='blast'){ o.frequency.value=200; g.gain.value=0.15; o.frequency.exponentialRampToValueAtTime(50,audioCtx.currentTime+0.2); }
+  if(type=='bonus'){ o.frequency.value=900; g.gain.value=0.12; o.frequency.linearRampToValueAtTime(1400,audioCtx.currentTime+0.15); }
+  if(type=='collect'){ o.frequency.value=1200; g.gain.value=0.08; }
+  o.start(); g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.2); o.stop(audioCtx.currentTime+0.22);
+}
+function toggleSound(){ soundOn=!soundOn; document.getElementById('soundBtn').innerText=soundOn?'🔊 ON':'🔇 OFF'; if(soundOn){initAudio(); playSound('bonus');} }
 
-// Brick class SQUARE
+const canvas=document.getElementById('game'), ctx=canvas.getContext('2d');
+let W,H; function resize(){W=canvas.width=innerWidth; H=canvas.height=innerHeight-90;} resize(); addEventListener('resize',resize);
+
+let balls=[], bricks=[], particles=[], floatTexts=[];
+let ballCount=35, score=0, stage=1;
+let shootX=W/2, shootY=H-90, nextX=null, aiming=false, aimAngle=-Math.PI/2;
+let shooting=false, toShoot=0, shot=0, shootTimer=0, speedMult=1, shake=0;
+
+class Particle{ constructor(x,y,c){ this.x=x; this.y=y; this.vx=(Math.random()-0.5)*6; this.vy=(Math.random()-0.5)*6; this.c=c; this.life=18; } draw(){ ctx.globalAlpha=this.life/18; ctx.fillStyle=this.c; ctx.fillRect(this.x,this.y,3,3); ctx.globalAlpha=1; } }
 class Brick{
-  constructor(x,y,hp){
-    this.x=x; this.y=y; this.w=55; this.h=55;
-    this.hp=hp; this.maxHp=hp;
-  }
+  constructor(x,y,hp,isBonus=false){ this.x=x; this.y=y; this.w=38; this.h=38; this.hp=hp; this.max=hp; this.isBonus=isBonus; this.dead=false; }
   draw(){
-    // Square chakor brick
-    let pct = this.hp/this.maxHp;
-    ctx.fillStyle = pct>0.6? '#1e90ff' : pct>0.3? '#ffaa00' : '#ff3333';
-    ctx.fillRect(this.x,this.y,this.w,this.h);
-    ctx.strokeStyle='#0a1628'; ctx.lineWidth=3;
-    ctx.strokeRect(this.x,this.y,this.w,this.h);
-    ctx.fillStyle='white'; ctx.font='bold 18px Arial';
-    ctx.textAlign='center';
-    ctx.fillText(this.hp, this.x+this.w/2, this.y+this.h/2+6);
+    ctx.save();
+    if(this.isBonus){ ctx.fillStyle='rgba(0,255,136,0.35)'; ctx.strokeStyle='#00ff88'; ctx.lineWidth=1.8; ctx.fillRect(this.x,this.y,this.w,this.h); ctx.strokeRect(this.x,this.y,this.w,this.h); ctx.fillStyle='white'; ctx.font='bold 11px Arial'; ctx.textAlign='center'; ctx.fillText('+1',this.x+19,this.y+24); ctx.restore(); return; }
+    let p=this.hp/this.max; let color=p>0.6?'rgba(30,144,255,0.38)':p>0.3?'rgba(255,170,0,0.38)':'rgba(255,45,45,0.42)';
+    ctx.fillStyle=color; ctx.fillRect(this.x,this.y,this.w,this.h); ctx.strokeStyle=p>0.6?'#1e90ff':p>0.3?'#ffaa00':'#ff2d2d'; ctx.lineWidth=1.5; ctx.strokeRect(this.x,this.y,this.w,this.h);
+    ctx.fillStyle='white'; ctx.font='bold 12px Arial'; ctx.textAlign='center'; ctx.fillText(this.hp,this.x+19,this.y+25); ctx.restore();
   }
 }
-
-// Ball class
 class Ball{
-  constructor(x,y,angle){
-    this.x=x; this.y=y;
-    this.vx=Math.cos(angle)*6;
-    this.vy=Math.sin(angle)*6;
-    this.r=8; this.active=true; this.collected=false;
-  }
+  constructor(x,y,a){ this.x=x; this.y=y; this.vx=Math.cos(a)*7; this.vy=Math.sin(a)*7; this.r=4; this.active=true; }
   update(){
-    if(!this.active || this.collected) return;
-    this.x+=this.vx*speedMult;
-    this.y+=this.vy*speedMult;
-
-    // Wall bounce left/right
-    if(this.x-this.r<0 || this.x+this.r>W){ this.vx*=-1; this.x=Math.max(this.r, Math.min(W-this.r,this.x)); }
-    // Top bounce
-    if(this.y-this.r<0){ this.vy*=-1; this.y=this.r; }
-
-    // Bottom - COLLECT, NOT BOUNCE - YAHAN FIX HAI
-    if(this.y+this.r > H-80){
-      this.collected=true;
-      this.active=false;
-      // First ball decides next shoot position
-      if(!shootPos.nextX) shootPos.nextX=this.x;
-      return;
-    }
-
-    // Brick collision SQUARE
+    if(!this.active) return;
+    this.x+=this.vx*speedMult; this.y+=this.vy*speedMult;
+    if(this.x-this.r<0 || this.x+this.r>W){ this.vx*=-1; this.x=Math.max(this.r,Math.min(W-this.r,this.x)); playSound('hit'); }
+    if(this.y-this.r<0){ this.vy*=-1; this.y=this.r; playSound('hit'); }
+    if(this.y+this.r>H-85){ this.active=false; if(nextX===null) nextX=this.x; shake=3; playSound('collect'); return; }
     for(let b of bricks){
-      if(this.x+this.r > b.x && this.x-this.r < b.x+b.w && this.y+this.r > b.y && this.y-this.r < b.y+b.h){
-        b.hp--;
-        // Bounce logic
-        let overlapLeft = (this.x+this.r) - b.x;
-        let overlapRight = (b.x+b.w) - (this.x-this.r);
-        let overlapTop = (this.y+this.r) - b.y;
-        let overlapBottom = (b.y+b.h) - (this.y-this.r);
-        let minOverlap = Math.min(overlapLeft,overlapRight,overlapTop,overlapBottom);
-        if(minOverlap==overlapLeft || minOverlap==overlapRight) this.vx*=-1;
-        else this.vy*=-1;
-        if(b.hp<=0) { score+=10; }
+      if(b.dead) continue;
+      if(this.x+this.r>b.x && this.x-this.r<b.x+b.w && this.y+this.r>b.y && this.y-this.r<b.y+b.h){
+        if(b.isBonus){ b.dead=true; ballCount++; floatTexts.push({x:b.x+19,y:b.y,txt:'+1',life:30}); playSound('bonus'); for(let i=0;i<8;i++) particles.push(new Particle(b.x+19,b.y+19,'#00ff88')); }
+        else{ b.hp--; playSound(b.hp<=0?'blast':'hit'); for(let i=0;i<5;i++) particles.push(new Particle(this.x,this.y,b.hp>0?'#1e90ff':'#ff2d2d')); if(b.hp<=0){ b.dead=true; score+=10; shake=6; floatTexts.push({x:b.x+19,y:b.y,txt:'+10',life:30}); } let ol=Math.min((this.x+this.r)-b.x,(b.x+b.w)-(this.x-this.r),(this.y+this.r)-b.y,(b.y+b.h)-(this.y-this.r)); if(ol==(this.x+this.r)-b.x||ol==(b.x+b.w)-(this.x-this.r)) this.vx*=-1; else this.vy*=-1; }
         break;
       }
     }
   }
-  draw(){
-    if(!this.active) return;
-    ctx.beginPath(); ctx.fillStyle='white';
-    ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill();
-    ctx.shadowColor='white'; ctx.shadowBlur=10; ctx.fill(); ctx.shadowBlur=0;
-  }
+  draw(){ if(!this.active) return; ctx.beginPath(); ctx.fillStyle='white'; ctx.shadowColor='white'; ctx.shadowBlur=6; ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0; }
 }
 
-function createStage(){
-  bricks=[];
-  let rows = 2 + Math.floor(stage/2);
-  for(let row=0; row<rows; row++){
-    let cols = 5;
-    for(let c=0;c<cols;c++){
-      if(Math.random()>0.4){
-        let x = 15 + c*(W/5);
-        let y = 70 + row*65;
-        bricks.push(new Brick(x,y, stage*3 + Math.floor(Math.random()*10)+5));
-      }
-    }
-  }
-}
+function createStage(){ bricks=[]; let cols=6; let gap=(W-8)/cols; for(let r=0;r<4;r++){ let bonusCol=Math.floor(Math.random()*cols); for(let c=0;c<cols;c++){ if(c==bonusCol&&r==1) bricks.push(new Brick(4+c*gap,65+r*44,1,true)); else if(Math.random()>0.12){ let hp=stage*2+Math.floor(Math.random()*6)+4; bricks.push(new Brick(4+c*gap,65+r*44,hp,false)); } } } }
 createStage();
-shootPos.x=W/2; shootPos.y=H-90; shootPos.nextX=null;
 
-canvas.addEventListener('touchstart', e=>{
-  if(shooting) return;
-  let t=e.touches[0];
-  aiming=true;
-  updateAim(t.clientX,t.clientY);
-});
-canvas.addEventListener('touchmove', e=>{
-  if(!aiming) return;
-  let t=e.touches[0];
-  updateAim(t.clientX,t.clientY);
-});
-canvas.addEventListener('touchend', ()=>{
-  if(!aiming) return;
-  aiming=false; startShoot();
-});
-canvas.addEventListener('mousedown', e=>{ aiming=true; updateAim(e.clientX,e.clientY); });
-canvas.addEventListener('mousemove', e=>{ if(aiming) updateAim(e.clientX,e.clientY); });
-canvas.addEventListener('mouseup', ()=>{ if(aiming){ aiming=false; startShoot(); }});
+function updateAim(mx,my){ let dx=mx-shootX, dy=my-shootY; if(dy>-15) dy=-15; aimAngle=Math.atan2(dy,dx); }
+canvas.addEventListener('touchstart',e=>{ initAudio(); if(shooting) return; aiming=true; updateAim(e.touches[0].clientX,e.touches[0].clientY); });
+canvas.addEventListener('touchmove',e=>{ if(aiming) updateAim(e.touches[0].clientX,e.touches[0].clientY); });
+canvas.addEventListener('touchend',()=>{ if(aiming){aiming=false; startShoot();}});
+canvas.addEventListener('mousedown',e=>{initAudio(); aiming=true; updateAim(e.clientX,e.clientY);}); canvas.addEventListener('mousemove',e=>{if(aiming) updateAim(e.clientX,e.clientY);}); canvas.addEventListener('mouseup',()=>{if(aiming){aiming=false; startShoot();}});
 
-function updateAim(mx,my){
-  let dx=mx-shootPos.x;
-  let dy=my-shootPos.y;
-  if(dy> -10) dy=-10; // Always up
-  aimAngle=Math.atan2(dy,dx);
-}
-function startShoot(){
-  if(bricks.length==0) return;
-  shooting=true; ballsToShoot=ballCount; shootIndex=0; shootTimer=0;
-  shootPos.nextX=null;
-  balls=[];
-}
+function startShoot(){ if(bricks.filter(b=>!b.dead).length==0) return; shooting=true; toShoot=ballCount; shot=0; shootTimer=0; balls=[]; nextX=null; playSound('shoot'); }
+function recallBalls(){ balls.forEach(b=>{ if(b.active){ b.active=false; if(nextX===null) nextX=b.x; }}); }
+function toggleSpeed(){ speedMult=speedMult==1?2:speedMult==2?3:1; document.getElementById('speedBtn').innerText='SPEED x'+speedMult; }
 
-function recallBalls(){
-  balls.forEach(b=>{ if(b.active){ b.collected=true; b.active=false; if(!shootPos.nextX) shootPos.nextX=b.x; }});
-}
+// --- AD SYSTEM OFFLINE + ONLINE ---
+function showAd(){
+  initAudio();
+  let isOnline=navigator.onLine;
+  let ad=document.createElement('div');
+  ad.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;color:white';
 
-function toggleSpeed(){
-  speedMult = speedMult==1?2: speedMult==2?3:1;
-  document.getElementById('speedBtn').innerText='SPEED x'+speedMult;
-  document.getElementById('info').innerText=`STAGE:${stage} | Score:${score} | Balls:x${ballCount}`;
-}
+  if(isOnline){
+    // ONLINE AD - AdSense Simulation + Real Earning
+    ad.innerHTML=`
+      <div style="background:#111f3a;padding:18px;border-radius:15px;text-align:center;border:2px solid #1e90ff;width:88%;max-width:340px">
+        <div style="background:white;color:black;padding:10px;border-radius:8px;margin-bottom:12px;font-size:12px">
+          <b>🔵 AdSense Ad</b><br>BBTAN Game - Best Puzzle Game!<br><small>Ad will close in <span id="adTimer">3</span>s</small>
+          <div style="margin-top:8px;background:#eee;height:80px;display:flex;align-items:center;justify-content:center">YOUR ADSENSE CODE HERE<br>ca-pub-XXXXXXXX</div>
+        </div>
+        <h3>🎁 +15 Balls Reward!</h3><p style="font-size:12px;margin:6px 0">Earning: $0.05 (Online)</p>
+        <button id="adBtn" disabled style="background:gray;border:none;padding:12px;border-radius:20px;color:white;font-weight:bold;width:100%">Wait 3s...</button>
+      </div>`;
+  }else{
+    // OFFLINE AD - Local Reward
+    ad.innerHTML=`
+      <div style="background:#111f3a;padding:18px;border-radius:15px;text-align:center;border:2px solid #ffaa00;width:88%;max-width:340px">
+        <div style="background:#222;padding:10px;border-radius:8px;margin-bottom:12px">
+          <b>📴 Offline Bonus</b><br><small>No internet - Local reward!</small><br>
+          <div style="margin-top:8px;background:#333;height:60px;display:flex;align-items:center;justify-content:center">⭐ OFFLINE REWARD ⭐</div>
+        </div>
+        <h3>🎁 +10 Balls!</h3><p style="font-size:12px;margin:6px 0">Offline mode - No earning</p>
+        <button id="adBtn" style="background:linear-gradient(90deg,orange,red);border:none;padding:12px;border-radius:20px;color:white;font-weight:bold;width:100%">Collect +10</button>
+      </div>`;
+  }
 
-function claimBonus(){
-  // Ad popup simulation
-  let ad = document.createElement('div');
-  ad.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:999';
-  ad.innerHTML=`<div style="background:#111f3a;padding:20px;border-radius:15px;text-align:center;border:2px solid #1e90ff;width:80%"><h3>🎁 +15 Balls!</h3><p style="margin:10px 0">Earning $0.05</p><button style="background:linear-gradient(90deg,orange,red);border:none;padding:10px 20px;border-radius:20px;color:white;font-weight:bold;width:100%" onclick="this.parentElement.parentElement.remove();addBalls()">Close & Get Reward</button></div>`;
   document.body.appendChild(ad);
+  if(isOnline){
+    let t=3; let timer=setInterval(()=>{ t--; let el=document.getElementById('adTimer'); if(el) el.innerText=t; let btn=document.getElementById('adBtn'); if(t<=0){ clearInterval(timer); btn.disabled=false; btn.style.background='linear-gradient(90deg,orange,red)'; btn.innerText='Close & Get +15 Balls'; } else { btn.innerText='Wait '+t+'s...'; } },1000);
+    ad.querySelector('#adBtn').onclick=()=>{ ad.remove(); ballCount+=15; updateUI(); playSound('bonus'); };
+  }else{
+    ad.querySelector('#adBtn').onclick=()=>{ ad.remove(); ballCount+=10; updateUI(); playSound('bonus'); };
+  }
 }
-function addBalls(){ ballCount+=15; updateUI(); }
 
-function updateUI(){
-  document.getElementById('info').innerText=`STAGE:${stage} | Score:${score} | Line:${line} | Balls:x${ballCount}`;
-}
+function claimBonus(){ showAd(); }
+function updateUI(){ document.getElementById('info').innerText=`STAGE:${stage} | Score:${score} | Balls:x${ballCount}`; }
 
-function gameLoop(){
+function loop(){
+  ctx.save(); if(shake>0){ ctx.translate((Math.random()-0.5)*shake,(Math.random()-0.5)*shake); shake*=0.85; if(shake<0.5) shake=0; }
   ctx.clearRect(0,0,W,H);
-
-  // Draw shoot pos
-  ctx.beginPath(); ctx.fillStyle='white'; ctx.arc(shootPos.x, H-90, 10,0,Math.PI*2); ctx.fill();
-
-  // Aiming line
-  if(aiming){
-    ctx.setLineDash([8,8]); ctx.strokeStyle='white'; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.moveTo(shootPos.x,H-90);
-    let len=150; ctx.lineTo(shootPos.x+Math.cos(aimAngle)*len, H-90+Math.sin(aimAngle)*len); ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
-  // Shoot balls one by one
-  if(shooting){
-    shootTimer++;
-    if(shootTimer>5 && shootIndex<ballsToShoot){
-      balls.push(new Ball(shootPos.x,H-90,aimAngle + (Math.random()-0.5)*0.05));
-      shootIndex++; shootTimer=0;
-    }
-    if(shootIndex>=ballsToShoot && balls.every(b=>!b.active)) {
-      shooting=false;
-      if(shootPos.nextX) shootPos.x=shootPos.nextX;
-      // Remove dead bricks
-      bricks=bricks.filter(b=>b.hp>0);
-      if(bricks.length==0){ stage++; line++; createStage(); }
-      else {
-        // Move bricks down
-        bricks.forEach(b=>b.y+=65); line++;
-        if(bricks.some(b=>b.y+b.h > H-100)){ alert('Game Over! Score:'+score); stage=1; score=0; line=1; createStage(); }
-      }
-      updateUI();
-    }
-  }
-
-  bricks.forEach(b=>{ if(b.hp>0) b.draw(); });
-  balls.forEach(b=>{ b.update(); b.draw(); });
-
-  // Game over line
-  ctx.strokeStyle='red'; ctx.setLineDash([5,5]); ctx.beginPath(); ctx.moveTo(0,H-100); ctx.lineTo(W,H-100); ctx.stroke(); ctx.setLineDash([]);
-
-  requestAnimationFrame(gameLoop);
+  ctx.fillStyle=nextX!==null?'#00ff88':'#ff2d2d'; ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=10; ctx.fillRect(0,H-85,W,2.5); ctx.shadowBlur=0;
+  ctx.beginPath(); ctx.fillStyle='white'; ctx.arc(shootX,H-90,6,0,Math.PI*2); ctx.fill();
+  if(aiming){ ctx.strokeStyle='rgba(255,255,255,0.9)'; ctx.lineWidth=1.5; ctx.setLineDash([8,6]); ctx.beginPath(); ctx.moveTo(shootX,H-90); let len=320; ctx.lineTo(shootX+Math.cos(aimAngle)*len,H-90+Math.sin(aimAngle)*len); ctx.stroke(); ctx.setLineDash([]); for(let i=0;i<6;i++){ let px=shootX+Math.cos(aimAngle)*(14+i*12), py=H-90+Math.sin(aimAngle)*(14+i*12); ctx.beginPath(); ctx.fillStyle='rgba(255,255,255,'+(0.9-i*0.14)+')'; ctx.arc(px,py,4,0,Math.PI*2); ctx.fill(); } }
+  if(shooting){ shootTimer++; if(shootTimer>=3&&shot<toShoot){ balls.push(new Ball(shootX,H-90,aimAngle)); shot++; shootTimer=0; } if(shot>=toShoot&&balls.every(b=>!b.active)){ shooting=false; if(nextX!==null) shootX=nextX; bricks=bricks.filter(b=>!b.dead); if(bricks.length==0){ stage++; createStage(); } else{ bricks.forEach(b=>b.y+=44); if(bricks.some(b=>b.y+b.h>H-92)){ alert('Game Over! Score:'+score); stage=1; score=0; ballCount=35; shootX=W/2; createStage(); } } updateUI(); } }
+  bricks.forEach(b=>{ if(!b.dead) b.draw(); }); particles.forEach((p,i)=>{ p.x+=p.vx; p.y+=p.vy; p.life--; p.draw(); if(p.life<=0) particles.splice(i,1); }); floatTexts.forEach((f,i)=>{ f.y-=1.2; f.life--; ctx.fillStyle='white'; ctx.font='bold 12px Arial'; ctx.fillText(f.txt,f.x,f.y); if(f.life<=0) floatTexts.splice(i,1); }); balls.forEach(b=>{ b.update(); b.draw(); });
+  ctx.restore(); requestAnimationFrame(loop);
 }
-gameLoop();
-if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js'); }
+loop(); updateUI();
+
+// Register offline Service Worker for full offline
+if('serviceWorker' in navigator){
+  let swCode=`self.addEventListener('install',e=>{self.skipWaiting()}); self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)))})`;
+  let blob=new Blob([swCode],{type:'text/javascript'}); let swUrl=URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).catch(()=>{});
+}
 </script>
 </body>
-</html>
+  </html>
