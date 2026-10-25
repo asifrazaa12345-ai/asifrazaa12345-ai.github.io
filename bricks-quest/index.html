@@ -3,205 +3,134 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>BRICKS QUEST V7 - FINAL PRO</title>
+<title>BRICKS QUEST V7.4 LIVE EARNING</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#02020a;color:#fff;font-family:'Orbitron',sans-serif;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
-.header{height:52px;min-height:52px;background:#0a0a1e;display:flex;justify-content:space-between;align-items:center;padding:0 12px;border-bottom:2px solid #1e1e4a;z-index:5}
-.logo{color:#00f2ff;font-size:13px;text-shadow:0 0 8px #00f2ff}
-.hstats{display:flex;gap:10px;font-size:10px;color:#888}
+.header{height:58px;min-height:58px;background:#0a0a1e;display:flex;justify-content:space-between;align-items:center;padding:0 10px;border-bottom:2px solid #1e1e4a}
+.logo{color:#00f2ff;font-size:11px;line-height:1.1}
+.logo span{color:#00ff88;font-size:10px;display:block}
+.hstats{display:flex;gap:6px;font-size:8px;color:#888}
 .hstats b{color:#fff}
-.cbtn{width:34px;height:34px;border-radius:10px;background:#151530;border:1px solid #2a2a5a;color:#fff;cursor:pointer}
-.game-wrap{flex:1;min-height:0;position:relative;background:radial-gradient(circle at 50% 20%,#141440,#02020a);overflow:hidden}
-#brickArea{position:absolute;top:0;left:0;right:0;padding:6px;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;z-index:2}
-.brick{height:44px;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:13px;font-weight:900;border:2px solid rgba(255,255,255,0.15);animation:pop 0.3s ease}
-@keyframes pop{0%{transform:scale(0)}100%{transform:scale(1)}}
-.brick.g1{background:linear-gradient(135deg,#00ff88,#00aa44);color:#002200;box-shadow:0 0 12px #00ff88}
-.brick.g2{background:linear-gradient(135deg,#ffeb00,#ffaa00);color:#331a00;box-shadow:0 0 12px #ffeb00}
-.brick.g3{background:linear-gradient(135deg,#ff7b00,#ff1a1a);color:#fff;box-shadow:0 0 14px #ff7b00}
-.brick.g4{background:linear-gradient(135deg,#ff00ff,#7000ff);color:#fff;box-shadow:0 0 16px #ff00ff}
-.brick.hit{transform:scale(1.15)}
-#canvas{position:absolute;inset:0;width:100%;height:100%;z-index:3;touch-action:none}
-.footer{height:64px;min-height:64px;background:#0a0a1e;border-top:2px solid #1e1e4a;display:flex;justify-content:space-between;align-items:center;padding:0 10px;z-index:5}
-.balls{font-size:14px;color:#00f2ff;font-weight:800}
-.balls span{color:#fff}
-.adbtn{background:linear-gradient(90deg,#00f2ff,#7000ff);border:none;padding:10px 14px;border-radius:20px;color:#fff;font-family:'Orbitron';font-size:10px;font-weight:800;cursor:pointer;box-shadow:0 0 15px #00f2ff;animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-.pops{position:absolute;pointer-events:none;font-size:16px;font-weight:900;animation:up 1s ease forwards;z-index:10}
-@keyframes up{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-60px) scale(1.2);opacity:0}}
-.modal{position:absolute;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:20;padding:20px}
+.earn{color:#00ff88;font-size:11px;font-weight:800;background:#002211;padding:4px 8px;border-radius:8px;border:1px solid #00ff88}
+.game-wrap{flex:1;min-height:0;position:relative;background:radial-gradient(circle at 50% 10%,#1a1a60,#02020a)}
+#canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.footer{height:62px;min-height:62px;background:#0a0a1e;border-top:2px solid #1e1e4a;display:flex;justify-content:space-between;align-items:center;padding:0 12px}
+.balls{font-size:12px;color:#00f2ff;font-weight:800}
+.adbtn{background:linear-gradient(90deg,#00f2ff,#7000ff);border:none;padding:9px 14px;border-radius:20px;color:#fff;font-family:'Orbitron';font-size:9px;font-weight:800;cursor:pointer;box-shadow:0 0 15px #00f2ff}
+.modal{position:absolute;inset:0;background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:20;padding:14px}
 .modal.show{display:flex}
-.card{background:linear-gradient(180deg,#1a1a40,#0a0a1e);border:2px solid #00f2ff;border-radius:22px;padding:22px;width:100%;max-width:330px;text-align:center;box-shadow:0 0 40px rgba(0,242,255,0.35)}
-.card h2{color:#00f2ff;margin-bottom:6px}
-.card p{color:#999;font-size:11px;line-height:1.5;margin-bottom:10px}
-.timer{font-size:36px;color:#fff;margin:10px 0}
-.claim{width:100%;padding:13px;border-radius:12px;border:none;font-family:'Orbitron';font-weight:800;cursor:pointer}
-.claim.wait{background:#222;color:#555;cursor:not-allowed}
-.claim.ready{background:linear-gradient(90deg,#00f2ff,#7000ff);color:#fff;box-shadow:0 0 20px #00f2ff}
+.card{background:linear-gradient(180deg,#1e1e50,#0a0a1e);border:2px solid #00f2ff;border-radius:20px;padding:18px;width:100%;max-width:340px;text-align:center;box-shadow:0 0 30px rgba(0,242,255,0.3)}
+.claim{width:100%;padding:12px;border-radius:10px;border:none;font-family:'Orbitron';font-weight:800;margin-top:10px;cursor:pointer}
+.claim.wait{background:#222;color:#555}
+.claim.ready{background:linear-gradient(90deg,#00ff88,#00ccff);color:#000}
+.claim.earn{background:linear-gradient(90deg,#00f2ff,#7000ff);color:#fff}
 </style>
 </head>
 <body>
 <div class="header">
-<div class="logo">BRICKS QUEST V7</div>
-<div class="hstats">
-<div>STAGE-<b id="stage">1</b></div>
-<div>LINE <b id="line">1/10</b></div>
-<div>BEST <b id="best">0</b></div>
+<div class="logo">BRICKS QUEST<br><span id="liveEarn">💰 $0.0000 LIVE</span></div>
+<div class="hstats"><div>STAGE-<b id="stage">1</b></div><div>LINE <b id="line">1/10</b></div></div>
+<div class="earn" id="earnBox">$0.00</div>
 </div>
-<div style="display:flex;gap:6px">
-<button class="cbtn" id="soundBtn">🔊</button>
-<button class="cbtn" id="fsBtn">⛶</button>
-</div>
-</div>
+<div class="game-wrap" id="wrap"><canvas id="canvas"></canvas>
 
-<div class="game-wrap" id="wrap">
-<div id="brickArea"></div>
-<canvas id="canvas"></canvas>
+<!-- Ad Modal - Har 5 level + Game Over -->
+<div class="modal" id="adModal"><div class="card">
+<div id="adType" style="color:#ffeb00;font-size:10px">🎬 ADVERTISEMENT</div>
+<h2 id="adTitle" style="color:#00f2ff;margin:8px 0">🎁 FREE REWARD</h2>
+<div style="background:#000;border-radius:12px;padding:22px;margin:10px 0;border:1px dashed #444">
+<div style="font-size:30px">📺</div>
+<div id="adDesc" style="color:#aaa;font-size:10px;margin-top:6px">Watch ad to continue & earn</div>
+<div style="color:#00ff88;font-size:9px;margin-top:8px">Live Earning: +$0.025 per ad view</div>
+</div>
+<div style="display:flex;justify-content:space-between;font-size:10px;color:#888"><span>Earning:</span><span id="adEarn" style="color:#00ff88">+$0.025</span></div>
+<div id="timer" style="font-size:36px;margin:10px 0">5</div>
+<button class="claim wait" id="claimBtn">Watching Ad...</button>
+</div></div>
 
-<div class="modal" id="adModal">
-<div class="card">
-<div style="font-size:11px;color:#00f2ff">Ad - <span id="adSec">5</span>s</div>
-<h2 style="margin-top:6px">🎁 FREE BALLS</h2>
-<div style="background:#000;border-radius:14px;padding:28px 10px;margin:12px 0;border:1px dashed #333">
-<div style="font-size:32px">📺</div>
-<div style="color:#555;font-size:10px;margin-top:8px">Sponsored Ad<br>Reward after full view</div>
-</div>
-<p>Watch full ad to earn +50 Balls instantly!</p>
-<div class="timer" id="timer">5</div>
-<button class="claim wait" id="claimBtn">Please Wait...</button>
-</div>
-</div>
+<div class="modal" id="overModal"><div class="card"><h2 style="color:#ff2a5a">Game Over!</h2><p style="color:#aaa;font-size:10px;margin:6px 0">Watch ad to get +25 balls and continue earning!</p><div style="color:#00ff88;margin:8px 0;font-size:14px">Total Earned: <span id="overEarn">$0.00</span></div><button class="claim earn" id="overAdBtn">📺 Watch Ad +25 Balls & Continue</button><button class="claim ready" onclick="resetGame()" style="background:#222;color:#888;margin-top:6px">No Thanks, Restart</button></div></div>
 
-<div class="modal" id="overModal">
-<div class="card">
-<h2 style="color:#ff2a5a">Game Over!</h2>
-<p>Bricks reached bottom line</p>
-<div style="font-size:20px;color:#fff;margin:10px 0">Stage: <span id="overStage">1</span></div>
-<button class="claim ready" onclick="resetGame()">PLAY AGAIN</button>
 </div>
-</div>
-</div>
-
-<div class="footer">
-<div class="balls">⚪ x<span id="ballCount">100</span></div>
-<button class="adbtn" id="watchAdBtn">📺 Watch Ad +50 Balls</button>
-<div style="font-size:20px">⚡</div>
-</div>
+<div class="footer"><div class="balls">⚪ x<span id="ballCount">50</span></div><button class="adbtn" id="watchAdBtn">📺 +25 Balls</button><div style="font-size:11px;color:#00ff88" id="footerEarn">$0.000</div></div>
 
 <script>
-const brickArea=document.getElementById('brickArea'), canvas=document.getElementById('canvas'), ctx=canvas.getContext('2d'), wrap=document.getElementById('wrap');
-let W,H,dpr, stage=1, line=1, balls=100, best=parseInt(localStorage.getItem('bq7_best')||0);
-let bricks=[], ballObjs=[], particles=[], shooting=false, isAiming=false, aimS=null, aimE=null, shootX=0, soundOn=true;
-let audioCtx; 
-function initAudio(){ if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }
-function beep(f,d,v=0.2){ if(!soundOn||!audioCtx) return; try{const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.frequency.value=f; o.connect(g); g.connect(audioCtx.destination); g.gain.value=v; o.start(); g.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+d); o.stop(audioCtx.currentTime+d);}catch(e){} }
-
-function resize(){ W=wrap.clientWidth; H=wrap.clientHeight; dpr=window.devicePixelRatio||1; canvas.width=W*dpr; canvas.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); shootX=W/2; }
-window.addEventListener('resize',resize); resize();
-
-function colClass(n){ if(n<=10) return 'g1'; if(n<=22) return 'g2'; if(n<=35) return 'g3'; return 'g4'; }
-function createLevel(){
- brickArea.innerHTML=''; bricks=[];
- let rows=Math.min(line,9);
- for(let r=0;r<rows;r++){
-  for(let c=0;c<7;c++){
-   if(Math.random()<0.6){
-    const base=stage<=2? 4 : stage<=4? 10 : 20;
-    const val=Math.floor(base + Math.random()*(8+stage*3));
-    const div=document.createElement('div'); div.className='brick '+colClass(val); div.textContent=val;
-    brickArea.appendChild(div);
-    bricks.push({el:div,val,r,c});
-   }
-  }
- }
+const canvas=document.getElementById('canvas'), ctx=canvas.getContext('2d'), wrap=document.getElementById('wrap');
+let W,H,dpr, stage=1, line=1, balls=50, AD_REWARD=25, earnings=0, best=parseFloat(localStorage.getItem('bq_earn')||0);
+let bricks=[], ballObjs=[], particles=[], shooting=false, isAiming=false, aimS=null, aimE=null, adMode='', pendingAction=null;
+let cols=7, gap=6, bh=44;
+function resize(){ W=wrap.clientWidth; H=wrap.clientHeight; dpr=window.devicePixelRatio||1; canvas.width=W*dpr; canvas.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); if(bricks.length==0) createFirst(); }
+window.addEventListener('resize',resize);
+function getColor(n){ if(n<=8) return ['#00ff88','#002200']; if(n<=18) return ['#ffeb00','#331a00']; if(n<=30) return ['#ff7b00','#fff']; return ['#ff00ff','#fff']; }
+function createFirst(){ bricks=[]; for(let c=0;c<cols;c++){ if(Math.random()<0.6){ let val=Math.floor(3+Math.random()*6); let bw=W/cols-gap; bricks.push({x:c*(bw+gap)+gap/2,y:gap,w:bw,h:bh,val}); } } }
+function addTopRowAndMoveDown(){
+ let step=bh+gap; for(let b of bricks) b.y+=step;
+ for(let b of bricks){ if(b.y+b.h>H-80) return true; }
+ let bw=W/cols-gap; for(let c=0;c<cols;c++){ if(Math.random()<0.65){ let base=line<=2?3:line<=4?9:16; let val=Math.floor(base+Math.random()*(5+line*2)); bricks.push({x:c*(bw+gap)+gap/2,y:gap,w:bw,h:bh,val}); } }
+ return false;
 }
 function updateUI(){
- document.getElementById('stage').textContent=stage;
- document.getElementById('line').textContent=line+'/10';
+ document.getElementById('stage').textContent=stage; document.getElementById('line').textContent=line+'/10';
  document.getElementById('ballCount').textContent=balls;
- document.getElementById('best').textContent=best;
+ document.getElementById('liveEarn').textContent='💰 $'+earnings.toFixed(4)+' LIVE';
+ document.getElementById('earnBox').textContent='$'+earnings.toFixed(3);
+ document.getElementById('footerEarn').textContent='$'+earnings.toFixed(3);
 }
-function popText(x,y,t,color='#fff'){ const d=document.createElement('div'); d.className='pops'; d.textContent=t; d.style.left=x+'px'; d.style.top=y+'px'; d.style.color=color; wrap.appendChild(d); setTimeout(()=>d.remove(),1000); }
+function addEarn(v){ earnings+=v; if(earnings>best){best=earnings; localStorage.setItem('bq_earn',best);} updateUI(); }
+function spawnParticles(x,y,c){ for(let i=0;i<10;i++) particles.push({x,y,vx:(Math.random()-0.5)*10,vy:(Math.random()-0.5)*10-2,life:25,color:c}); }
+function shoot(angle){ if(shooting) return; shooting=true; ballObjs=[]; let idx=0; let sx=aimS?aimS.x:W/2; let iv=setInterval(()=>{ if(idx>=balls){clearInterval(iv);return;} ballObjs.push({x:sx,y:H-22,vx:Math.cos(angle)*14,vy:Math.sin(angle)*14,active:true}); idx++; },40); }
 
-function checkOver(){ if(line>=10){ document.getElementById('overStage').textContent=stage; document.getElementById('overModal').classList.add('show'); if(stage>best){best=stage; localStorage.setItem('bq7_best',best);} return true;} return false; }
-function nextLine(){ line++; stage=Math.floor(line/2)+1; if(checkOver()) return; createLevel(); updateUI(); }
-function resetGame(){ stage=1; line=1; balls=100; document.getElementById('overModal').classList.remove('show'); createLevel(); updateUI(); }
-
-function spawnParticles(x,y,color){
- for(let i=0;i<12;i++){ particles.push({x,y,vx:(Math.random()-0.5)*14,vy:(Math.random()-0.5)*14-2,life:28,color}); }
-}
-function shoot(angle){
- if(shooting) return; shooting=true; ballObjs=[]; let idx=0;
- const interval=setInterval(()=>{
-  if(idx>=balls){ clearInterval(interval); return; }
-  ballObjs.push({x:shootX,y:H-18,vx:Math.cos(angle)*16,vy:Math.sin(angle)*16,active:true});
-  beep(650+Math.random()*250,0.07,0.18);
-  idx++;
- },35);
+// AD SYSTEM
+let adTimer;
+function showAd(type){
+ adMode=type;
+ document.getElementById('adModal').classList.add('show');
+ let title=document.getElementById('adTitle'), desc=document.getElementById('adDesc'), earnTxt=document.getElementById('adEarn'), typeTxt=document.getElementById('adType');
+ if(type=='level'){ title.textContent='🎉 LEVEL '+stage+' REWARD!'; desc.textContent='You reached Stage '+stage+'! Watch ad to earn +25 balls & $0.025'; earnTxt.textContent='+$0.025 +25 Balls'; typeTxt.textContent='🏆 LEVEL '+stage+' BONUS AD'; }
+ else if(type=='gameover'){ title.textContent='💔 GAME OVER REWARD'; desc.textContent='Watch ad to revive with +25 balls and keep earning!'; earnTxt.textContent='+$0.020 +25 Balls'; typeTxt.textContent='💀 GAME OVER AD'; }
+ else { title.textContent='🎁 FREE BALLS'; desc.textContent='Watch ad to get +25 balls'; earnTxt.textContent='+$0.015 +25 Balls'; typeTxt.textContent='🎬 REWARD AD'; }
+ let c=5; document.getElementById('timer').textContent=c; const btn=document.getElementById('claimBtn'); btn.className='claim wait'; btn.textContent='Watching Ad...'; clearInterval(adTimer);
+ adTimer=setInterval(()=>{ c--; document.getElementById('timer').textContent=c; if(c<=0){ clearInterval(adTimer); btn.className='claim ready'; if(type=='level') btn.textContent='Claim +25 Balls + $0.025 >>'; else if(type=='gameover') btn.textContent='Claim & Continue >>'; else btn.textContent='Claim +25 Balls >>'; } },1000);
 }
 
 function loop(){
  requestAnimationFrame(loop);
  ctx.clearRect(0,0,W,H);
- if(isAiming&&aimS&&aimE){
-  const ang=Math.atan2(aimE.y-aimS.y,aimE.x-aimS.x);
-  if(ang<0){
-   ctx.setLineDash([8,10]); ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=2;
-   ctx.beginPath(); ctx.moveTo(aimS.x,aimS.y); ctx.lineTo(aimS.x+Math.cos(ang)*220,aimS.y+Math.sin(ang)*220); ctx.stroke(); ctx.setLineDash([]);
-   ctx.fillStyle='#fff'; ctx.shadowColor='#00f2ff'; ctx.shadowBlur=10; ctx.beginPath(); ctx.arc(aimS.x+Math.cos(ang)*220,aimS.y+Math.sin(ang)*220,7,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
-  }
- }
- // balls physics
- for(let b of ballObjs){
-  if(!b.active) continue;
-  b.x+=b.vx; b.y+=b.vy;
-  if(b.x<9||b.x>W-9){ b.vx*=-1; b.x=Math.max(9,Math.min(W-9,b.x)); beep(280,0.04); }
-  if(b.y<9){ b.vy*=-1; b.y=9; beep(280,0.04); }
-  // check bricks
-  for(let br of bricks){
-   if(br.val<=0) continue;
-   const rect=br.el.getBoundingClientRect(); const wrect=wrap.getBoundingClientRect();
-   const bx=rect.left-wrect.left+rect.width/2; const by=rect.top-wrect.top+rect.height/2;
-   if(Math.abs(b.x-bx)<rect.width/2+12 && Math.abs(b.y-by)<rect.height/2+12){
-    br.val--; if(br.val<=0){ br.el.style.visibility='hidden'; spawnParticles(b.x,b.y,'#ffeb00'); popText(b.x,b.y-10,'+1',' #00ff88'); beep(1000,0.2,0.35); }
-    else { br.el.textContent=br.val; br.el.className='brick '+colClass(br.val)+' hit'; setTimeout(()=>br.el.classList.remove('hit'),100); beep(520,0.05); }
-    b.vy*=-1; b.vx+=(Math.random()-0.5)*1.5; break;
-   }
-  }
-  if(b.y>H+20){ b.active=false; }
-  if(b.active){ ctx.fillStyle='#ffffff'; ctx.shadowColor='#00f2ff'; ctx.shadowBlur=12; ctx.beginPath(); ctx.arc(b.x,b.y,9,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0; }
- }
- for(let i=particles.length-1;i>=0;i--){ let p=particles[i]; p.x+=p.vx; p.y+=p.vy; p.vy+=0.35; p.life--; ctx.fillStyle=p.color; ctx.globalAlpha=p.life/28; ctx.fillRect(p.x,p.y,4,4); ctx.globalAlpha=1; if(p.life<=0) particles.splice(i,1); }
+ for(let b of bricks){ if(b.val<=0) continue; let col=getColor(b.val); ctx.fillStyle=col[0]; ctx.shadowColor=col[0]; ctx.shadowBlur=12; ctx.beginPath(); ctx.roundRect(b.x,b.y,b.w,b.h,12); ctx.fill(); ctx.shadowBlur=0; ctx.fillStyle=col[1]; ctx.font='bold 14px Orbitron'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(b.val,b.x+b.w/2,b.y+b.h/2); }
+ if(!shooting){ let sx=isAiming&&aimS?aimS.x:W/2; ctx.fillStyle='#fff'; ctx.shadowColor='#00f2ff'; ctx.shadowBlur=18; ctx.beginPath(); ctx.arc(sx,H-22,11,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0; ctx.strokeStyle='rgba(0,242,255,0.4)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(sx,H-22,18+Math.sin(Date.now()/200)*3,0,Math.PI*2); ctx.stroke(); }
+ if(isAiming&&aimS&&aimE){ let ang=Math.atan2(aimE.y-aimS.y,aimE.x-aimS.x); if(ang<0){ for(let i=1;i<=16;i++){ let px=aimS.x+Math.cos(ang)*i*22, py=aimS.y+Math.sin(ang)*i*22; if(py<60) break; ctx.fillStyle=i%2==0?'#fff':'rgba(0,242,255,0.8)'; ctx.beginPath(); ctx.arc(px,py,i==16?8:5,0,Math.PI*2); ctx.fill(); } } }
+ for(let b of ballObjs){ if(!b.active) continue; b.x+=b.vx; b.y+=b.vy; if(b.x<10||b.x>W-10){b.vx*=-1; b.x=Math.max(10,Math.min(W-10,b.x));} if(b.y<10){b.vy*=-1; b.y=10;} for(let br of bricks){ if(br.val<=0) continue; if(b.x>br.x-6&&b.x<br.x+br.w+6&&b.y>br.y-6&&b.y<br.y+br.h+6){ br.val--; spawnParticles(b.x,b.y,getColor(br.val+1)[0]); if(br.val<=0){ addEarn(0.001); } b.vy*=-1; break; } } if(b.y>H+30) b.active=false; if(b.active){ ctx.fillStyle='#fff'; ctx.shadowColor='#00f2ff'; ctx.shadowBlur=10; ctx.beginPath(); ctx.arc(b.x,b.y,8,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0; } }
+ for(let i=particles.length-1;i>=0;i--){ let p=particles[i]; p.x+=p.vx; p.y+=p.vy; p.vy+=0.3; p.life--; ctx.fillStyle=p.color; ctx.globalAlpha=p.life/25; ctx.fillRect(p.x,p.y,4,4); ctx.globalAlpha=1; if(p.life<=0) particles.splice(i,1); }
  if(shooting && ballObjs.length>0 && ballObjs.every(b=>!b.active)){
-  shooting=false; ballObjs=[]; bricks=bricks.filter(b=>b.val>0);
-  setTimeout(nextLine,400);
+  shooting=false; ballObjs=[]; bricks=bricks.filter(b=>b.val>0); line++; stage=Math.floor(line/2)+1;
+  let isOver=addTopRowAndMoveDown();
+  if(isOver){ document.getElementById('overEarn').textContent='$'+earnings.toFixed(4); document.getElementById('overModal').classList.add('show'); return; }
+  // HAR 5 LEVEL PAR AD
+  if(stage%5==0){ showAd('level'); } 
+  updateUI();
  }
 }
-loop();
-
 function getPos(e){ const r=canvas.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return {x:t.clientX-r.left,y:t.clientY-r.top}; }
-canvas.addEventListener('touchstart',e=>{ initAudio(); isAiming=true; aimS=getPos(e); shootX=aimS.x; e.preventDefault(); },{passive:false});
+canvas.addEventListener('touchstart',e=>{ isAiming=true; aimS=getPos(e); e.preventDefault(); },{passive:false});
 canvas.addEventListener('touchmove',e=>{ if(!isAiming) return; aimE=getPos(e); e.preventDefault(); },{passive:false});
-canvas.addEventListener('touchend',e=>{ if(!isAiming) return; isAiming=false; if(aimE&&aimS){ const ang=Math.atan2(aimE.y-aimS.y,aimE.x-aimS.x); if(ang<0) shoot(ang); } aimE=null; });
-canvas.addEventListener('mousedown',e=>{ initAudio(); isAiming=true; aimS=getPos(e); });
-canvas.addEventListener('mousemove',e=>{ if(!isAiming) return; aimE=getPos(e); });
-canvas.addEventListener('mouseup',e=>{ if(!isAiming) return; isAiming=false; const p=getPos(e); const ang=Math.atan2(p.y-aimS.y,p.x-aimS.x); if(ang<0) shoot(ang); });
+canvas.addEventListener('touchend',e=>{ if(!isAiming) return; isAiming=false; if(aimE&&aimS){ let ang=Math.atan2(aimE.y-aimS.y,aimE.x-aimS.x); if(ang<0) shoot(ang); } });
+canvas.addEventListener('mousedown',e=>{ isAiming=true; aimS=getPos(e); });
+canvas.addEventListener('mousemove',e=>{ if(isAiming) aimE=getPos(e); });
+canvas.addEventListener('mouseup',e=>{ if(!isAiming) return; isAiming=false; let p=getPos(e); let ang=Math.atan2(p.y-aimS.y,p.x-aimS.x); if(ang<0) shoot(ang); });
 
-let adTimer;
-function showAd(){
- document.getElementById('adModal').classList.add('show');
- let c=5; document.getElementById('adSec').textContent=c; document.getElementById('timer').textContent=c;
- const btn=document.getElementById('claimBtn'); btn.className='claim wait'; btn.textContent='Please Wait...';
- clearInterval(adTimer);
- adTimer=setInterval(()=>{ c--; document.getElementById('adSec').textContent=c; document.getElementById('timer').textContent=c; if(c<=0){ clearInterval(adTimer); btn.className='claim ready'; btn.textContent='Claim +50 Balls >>'; } },1000);
-}
-document.getElementById('watchAdBtn').addEventListener('click',showAd);
-document.getElementById('claimBtn').addEventListener('click',function(){ if(!this.classList.contains('ready')) return; balls+=50; updateUI(); document.getElementById('adModal').classList.remove('show'); popText(W/2,H/2,'+50 BALLS!','#00f2ff'); beep(1200,0.35,0.4); });
-document.getElementById('soundBtn').addEventListener('click',function(){ soundOn=!soundOn; this.textContent=soundOn?'🔊':'🔇'; if(soundOn){ initAudio(); if(audioCtx.state==='suspended') audioCtx.resume(); } });
-document.getElementById('fsBtn').addEventListener('click',()=>{ const el=document.documentElement; if(!document.fullscreenElement) el.requestFullscreen(); else document.exitFullscreen(); });
-
-createLevel(); updateUI(); document.getElementById('best').textContent=best;
+// Claim buttons
+document.getElementById('claimBtn').addEventListener('click',function(){
+ if(!this.classList.contains('ready')) return;
+ if(adMode=='level'){ balls+=25; addEarn(0.025); }
+ else if(adMode=='gameover'){ balls+=25; addEarn(0.02); document.getElementById('overModal').classList.remove('show'); }
+ else { balls+=25; addEarn(0.015); }
+ document.getElementById('adModal').classList.remove('show'); updateUI();
+});
+document.getElementById('watchAdBtn').addEventListener('click',()=>showAd('normal'));
+document.getElementById('overAdBtn').addEventListener('click',()=>{ document.getElementById('overModal').classList.remove('show'); showAd('gameover'); });
+function resetGame(){ stage=1; line=1; balls=50; earnings=0; bricks=[]; document.getElementById('overModal').classList.remove('show'); document.getElementById('adModal').classList.remove('show'); createFirst(); updateUI(); }
+resize(); updateUI(); loop();
 </script>
 </body>
-  </html>
+ </html>
