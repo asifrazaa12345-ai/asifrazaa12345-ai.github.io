@@ -3,14 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>BRICKS QUEST V7.4 LIVE EARNING</title>
+<title>BRICKS QUEST V7.5 REAL EARNING</title>
+<!-- REAL ADSENSE CODE - Asif Bhai ki ID -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8616771506977449" crossorigin="anonymous"></script>
+<meta name="google-adsense-account" content="ca-pub-8616771506977449">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#02020a;color:#fff;font-family:'Orbitron',sans-serif;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 .header{height:58px;min-height:58px;background:#0a0a1e;display:flex;justify-content:space-between;align-items:center;padding:0 10px;border-bottom:2px solid #1e1e4a}
 .logo{color:#00f2ff;font-size:11px;line-height:1.1}
-.logo span{color:#00ff88;font-size:10px;display:block}
+.logo span{color:#00ff88;font-size:9px;display:block}
 .hstats{display:flex;gap:6px;font-size:8px;color:#888}
 .hstats b{color:#fff}
 .earn{color:#00ff88;font-size:11px;font-weight:800;background:#002211;padding:4px 8px;border-radius:8px;border:1px solid #00ff88}
@@ -21,11 +24,11 @@ body{background:#02020a;color:#fff;font-family:'Orbitron',sans-serif;height:100v
 .adbtn{background:linear-gradient(90deg,#00f2ff,#7000ff);border:none;padding:9px 14px;border-radius:20px;color:#fff;font-family:'Orbitron';font-size:9px;font-weight:800;cursor:pointer;box-shadow:0 0 15px #00f2ff}
 .modal{position:absolute;inset:0;background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:20;padding:14px}
 .modal.show{display:flex}
-.card{background:linear-gradient(180deg,#1e1e50,#0a0a1e);border:2px solid #00f2ff;border-radius:20px;padding:18px;width:100%;max-width:340px;text-align:center;box-shadow:0 0 30px rgba(0,242,255,0.3)}
+.card{background:linear-gradient(180deg,#1e1e50,#0a0a1e);border:2px solid #00f2ff;border-radius:20px;padding:18px;width:100%;max-width:360px;text-align:center;box-shadow:0 0 30px rgba(0,242,255,0.3)}
 .claim{width:100%;padding:12px;border-radius:10px;border:none;font-family:'Orbitron';font-weight:800;margin-top:10px;cursor:pointer}
 .claim.wait{background:#222;color:#555}
 .claim.ready{background:linear-gradient(90deg,#00ff88,#00ccff);color:#000}
-.claim.earn{background:linear-gradient(90deg,#00f2ff,#7000ff);color:#fff}
+.ad-slot{background:#000;border-radius:10px;margin:10px 0;min-height:120px;display:flex;align-items:center;justify-content:center;border:1px dashed #333;overflow:hidden}
 </style>
 </head>
 <body>
@@ -36,64 +39,58 @@ body{background:#02020a;color:#fff;font-family:'Orbitron',sans-serif;height:100v
 </div>
 <div class="game-wrap" id="wrap"><canvas id="canvas"></canvas>
 
-<!-- Ad Modal - Har 5 level + Game Over -->
 <div class="modal" id="adModal"><div class="card">
-<div id="adType" style="color:#ffeb00;font-size:10px">🎬 ADVERTISEMENT</div>
-<h2 id="adTitle" style="color:#00f2ff;margin:8px 0">🎁 FREE REWARD</h2>
-<div style="background:#000;border-radius:12px;padding:22px;margin:10px 0;border:1px dashed #444">
-<div style="font-size:30px">📺</div>
-<div id="adDesc" style="color:#aaa;font-size:10px;margin-top:6px">Watch ad to continue & earn</div>
-<div style="color:#00ff88;font-size:9px;margin-top:8px">Live Earning: +$0.025 per ad view</div>
+<div id="adType" style="color:#ffeb00;font-size:10px">🎬 REAL GOOGLE AD</div>
+<h2 id="adTitle" style="color:#00f2ff;margin:8px 0">🎁 REAL REWARD</h2>
+<!-- REAL ADSENSE AD UNIT -->
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8616771506977449"
+     data-ad-slot="auto"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 </div>
-<div style="display:flex;justify-content:space-between;font-size:10px;color:#888"><span>Earning:</span><span id="adEarn" style="color:#00ff88">+$0.025</span></div>
-<div id="timer" style="font-size:36px;margin:10px 0">5</div>
-<button class="claim wait" id="claimBtn">Watching Ad...</button>
+<div id="adDesc" style="color:#aaa;font-size:10px">Watch real ad - Earning goes to your AdSense account!</div>
+<div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-top:6px"><span>Real Earning:</span><span id="adEarn" style="color:#00ff88">+$0.025 +25 Balls</span></div>
+<div id="timer" style="font-size:32px;margin:8px 0">5</div>
+<button class="claim wait" id="claimBtn">Loading Real Ad...</button>
 </div></div>
 
-<div class="modal" id="overModal"><div class="card"><h2 style="color:#ff2a5a">Game Over!</h2><p style="color:#aaa;font-size:10px;margin:6px 0">Watch ad to get +25 balls and continue earning!</p><div style="color:#00ff88;margin:8px 0;font-size:14px">Total Earned: <span id="overEarn">$0.00</span></div><button class="claim earn" id="overAdBtn">📺 Watch Ad +25 Balls & Continue</button><button class="claim ready" onclick="resetGame()" style="background:#222;color:#888;margin-top:6px">No Thanks, Restart</button></div></div>
-
+<div class="modal" id="overModal"><div class="card"><h2 style="color:#ff2a5a">Game Over!</h2>
+<div class="ad-slot" style="min-height:100px"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8616771506977449" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+<div style="color:#00ff88;margin:8px 0;font-size:14px">Total Earned: <span id="overEarn">$0.00</span></div>
+<button class="claim" style="background:linear-gradient(90deg,#00f2ff,#7000ff);color:#fff" id="overAdBtn">📺 Watch Real Ad +25 Balls & Continue</button>
+<button class="claim ready" onclick="resetGame()" style="background:#222;color:#888;margin-top:6px">No Thanks, Restart</button></div></div>
 </div>
+
 <div class="footer"><div class="balls">⚪ x<span id="ballCount">50</span></div><button class="adbtn" id="watchAdBtn">📺 +25 Balls</button><div style="font-size:11px;color:#00ff88" id="footerEarn">$0.000</div></div>
 
 <script>
 const canvas=document.getElementById('canvas'), ctx=canvas.getContext('2d'), wrap=document.getElementById('wrap');
 let W,H,dpr, stage=1, line=1, balls=50, AD_REWARD=25, earnings=0, best=parseFloat(localStorage.getItem('bq_earn')||0);
-let bricks=[], ballObjs=[], particles=[], shooting=false, isAiming=false, aimS=null, aimE=null, adMode='', pendingAction=null;
+let bricks=[], ballObjs=[], particles=[], shooting=false, isAiming=false, aimS=null, aimE=null, adMode='', lastAdStage=0;
 let cols=7, gap=6, bh=44;
 function resize(){ W=wrap.clientWidth; H=wrap.clientHeight; dpr=window.devicePixelRatio||1; canvas.width=W*dpr; canvas.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); if(bricks.length==0) createFirst(); }
 window.addEventListener('resize',resize);
 function getColor(n){ if(n<=8) return ['#00ff88','#002200']; if(n<=18) return ['#ffeb00','#331a00']; if(n<=30) return ['#ff7b00','#fff']; return ['#ff00ff','#fff']; }
 function createFirst(){ bricks=[]; for(let c=0;c<cols;c++){ if(Math.random()<0.6){ let val=Math.floor(3+Math.random()*6); let bw=W/cols-gap; bricks.push({x:c*(bw+gap)+gap/2,y:gap,w:bw,h:bh,val}); } } }
-function addTopRowAndMoveDown(){
- let step=bh+gap; for(let b of bricks) b.y+=step;
- for(let b of bricks){ if(b.y+b.h>H-80) return true; }
- let bw=W/cols-gap; for(let c=0;c<cols;c++){ if(Math.random()<0.65){ let base=line<=2?3:line<=4?9:16; let val=Math.floor(base+Math.random()*(5+line*2)); bricks.push({x:c*(bw+gap)+gap/2,y:gap,w:bw,h:bh,val}); } }
- return false;
-}
-function updateUI(){
- document.getElementById('stage').textContent=stage; document.getElementById('line').textContent=line+'/10';
- document.getElementById('ballCount').textContent=balls;
- document.getElementById('liveEarn').textContent='💰 $'+earnings.toFixed(4)+' LIVE';
- document.getElementById('earnBox').textContent='$'+earnings.toFixed(3);
- document.getElementById('footerEarn').textContent='$'+earnings.toFixed(3);
-}
+function addTopRowAndMoveDown(){ let step=bh+gap; for(let b of bricks) b.y+=step; for(let b of bricks){ if(b.y+b.h>H-80) return true; } let bw=W/cols-gap; for(let c=0;c<cols;c++){ if(Math.random()<0.65){ let base=line<=2?3:line<=4?9:16; let val=Math.floor(base+Math.random()*(5+line*2)); bricks.push({x:c*(bw+gap)+gap/2,y:gap,w:bw,h:bh,val}); } } return false; }
+function updateUI(){ document.getElementById('stage').textContent=stage; document.getElementById('line').textContent=line+'/10'; document.getElementById('ballCount').textContent=balls; document.getElementById('liveEarn').textContent='💰 $'+earnings.toFixed(4)+' LIVE'; document.getElementById('earnBox').textContent='$'+earnings.toFixed(3); document.getElementById('footerEarn').textContent='$'+earnings.toFixed(3); }
 function addEarn(v){ earnings+=v; if(earnings>best){best=earnings; localStorage.setItem('bq_earn',best);} updateUI(); }
 function spawnParticles(x,y,c){ for(let i=0;i<10;i++) particles.push({x,y,vx:(Math.random()-0.5)*10,vy:(Math.random()-0.5)*10-2,life:25,color:c}); }
 function shoot(angle){ if(shooting) return; shooting=true; ballObjs=[]; let idx=0; let sx=aimS?aimS.x:W/2; let iv=setInterval(()=>{ if(idx>=balls){clearInterval(iv);return;} ballObjs.push({x:sx,y:H-22,vx:Math.cos(angle)*14,vy:Math.sin(angle)*14,active:true}); idx++; },40); }
-
-// AD SYSTEM
 let adTimer;
 function showAd(type){
- adMode=type;
- document.getElementById('adModal').classList.add('show');
+ adMode=type; document.getElementById('adModal').classList.add('show');
  let title=document.getElementById('adTitle'), desc=document.getElementById('adDesc'), earnTxt=document.getElementById('adEarn'), typeTxt=document.getElementById('adType');
- if(type=='level'){ title.textContent='🎉 LEVEL '+stage+' REWARD!'; desc.textContent='You reached Stage '+stage+'! Watch ad to earn +25 balls & $0.025'; earnTxt.textContent='+$0.025 +25 Balls'; typeTxt.textContent='🏆 LEVEL '+stage+' BONUS AD'; }
- else if(type=='gameover'){ title.textContent='💔 GAME OVER REWARD'; desc.textContent='Watch ad to revive with +25 balls and keep earning!'; earnTxt.textContent='+$0.020 +25 Balls'; typeTxt.textContent='💀 GAME OVER AD'; }
- else { title.textContent='🎁 FREE BALLS'; desc.textContent='Watch ad to get +25 balls'; earnTxt.textContent='+$0.015 +25 Balls'; typeTxt.textContent='🎬 REWARD AD'; }
- let c=5; document.getElementById('timer').textContent=c; const btn=document.getElementById('claimBtn'); btn.className='claim wait'; btn.textContent='Watching Ad...'; clearInterval(adTimer);
- adTimer=setInterval(()=>{ c--; document.getElementById('timer').textContent=c; if(c<=0){ clearInterval(adTimer); btn.className='claim ready'; if(type=='level') btn.textContent='Claim +25 Balls + $0.025 >>'; else if(type=='gameover') btn.textContent='Claim & Continue >>'; else btn.textContent='Claim +25 Balls >>'; } },1000);
+ if(type=='level'){ title.textContent='🎉 STAGE '+stage+' REWARD!'; desc.textContent='Real Google Ad - Watch to earn! Money goes to AdSense!'; earnTxt.textContent='+$0.025 +25 Balls'; typeTxt.textContent='🏆 LEVEL '+stage+' REAL AD'; }
+ else if(type=='gameover'){ title.textContent='💔 GAME OVER AD'; desc.textContent='Watch real ad to continue!'; earnTxt.textContent='+$0.020 +25 Balls'; typeTxt.textContent='💀 GAME OVER REAL AD'; }
+ else { title.textContent='🎁 REAL ADSENSE AD'; desc.textContent='Watch real ad for +25 balls'; earnTxt.textContent='+$0.015 +25 Balls'; typeTxt.textContent='🎬 REAL AD'; }
+ let c=5; document.getElementById('timer').textContent=c; const btn=document.getElementById('claimBtn'); btn.className='claim wait'; btn.textContent='Loading Real Ad...'; clearInterval(adTimer);
+ adTimer=setInterval(()=>{ c--; document.getElementById('timer').textContent=c; if(c<=0){ clearInterval(adTimer); btn.className='claim ready'; btn.textContent='Claim +25 Balls + Real Earning >>'; try{(adsbygoogle = window.adsbygoogle || []).push({});}catch(e){} } },1000);
 }
-
 function loop(){
  requestAnimationFrame(loop);
  ctx.clearRect(0,0,W,H);
@@ -106,8 +103,7 @@ function loop(){
   shooting=false; ballObjs=[]; bricks=bricks.filter(b=>b.val>0); line++; stage=Math.floor(line/2)+1;
   let isOver=addTopRowAndMoveDown();
   if(isOver){ document.getElementById('overEarn').textContent='$'+earnings.toFixed(4); document.getElementById('overModal').classList.add('show'); return; }
-  // HAR 5 LEVEL PAR AD
-  if(stage%5==0){ showAd('level'); } 
+  if(stage%5==0 && stage!=lastAdStage){ lastAdStage=stage; showAd('level'); } 
   updateUI();
  }
 }
@@ -118,18 +114,10 @@ canvas.addEventListener('touchend',e=>{ if(!isAiming) return; isAiming=false; if
 canvas.addEventListener('mousedown',e=>{ isAiming=true; aimS=getPos(e); });
 canvas.addEventListener('mousemove',e=>{ if(isAiming) aimE=getPos(e); });
 canvas.addEventListener('mouseup',e=>{ if(!isAiming) return; isAiming=false; let p=getPos(e); let ang=Math.atan2(p.y-aimS.y,p.x-aimS.x); if(ang<0) shoot(ang); });
-
-// Claim buttons
-document.getElementById('claimBtn').addEventListener('click',function(){
- if(!this.classList.contains('ready')) return;
- if(adMode=='level'){ balls+=25; addEarn(0.025); }
- else if(adMode=='gameover'){ balls+=25; addEarn(0.02); document.getElementById('overModal').classList.remove('show'); }
- else { balls+=25; addEarn(0.015); }
- document.getElementById('adModal').classList.remove('show'); updateUI();
-});
+document.getElementById('claimBtn').addEventListener('click',function(){ if(!this.classList.contains('ready')) return; if(adMode=='level'){ balls+=25; addEarn(0.025); } else if(adMode=='gameover'){ balls+=25; addEarn(0.02); document.getElementById('overModal').classList.remove('show'); } else { balls+=25; addEarn(0.015); } document.getElementById('adModal').classList.remove('show'); updateUI(); });
 document.getElementById('watchAdBtn').addEventListener('click',()=>showAd('normal'));
 document.getElementById('overAdBtn').addEventListener('click',()=>{ document.getElementById('overModal').classList.remove('show'); showAd('gameover'); });
-function resetGame(){ stage=1; line=1; balls=50; earnings=0; bricks=[]; document.getElementById('overModal').classList.remove('show'); document.getElementById('adModal').classList.remove('show'); createFirst(); updateUI(); }
+function resetGame(){ stage=1; line=1; balls=50; earnings=0; bricks=[]; lastAdStage=0; document.getElementById('overModal').classList.remove('show'); document.getElementById('adModal').classList.remove('show'); createFirst(); updateUI(); }
 resize(); updateUI(); loop();
 </script>
 </body>
